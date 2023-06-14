@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include "io.h"
 
+namespace
+{
+    constexpr int desired_screen_w = 580;
+    constexpr int desired_screen_h = 420;
+} // anonymous
+
 io::~io()
 {
     SDL_DestroyWindow( _window );
@@ -24,7 +30,7 @@ void io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
 
 void io::clear_screen()
 {
-    SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0x00, 0x00, 0x00));
+    SDL_FillRect(_surface, nullptr, SDL_MapRGB(_surface->format, 0x00, 0x00, 0x00));
 }
 
 bool io::init_graph()
@@ -43,8 +49,10 @@ bool io::init_graph()
 	atexit(SDL_Quit);
 
     SDL_GetCurrentDisplayMode(0, &displayMode);
-    _width = displayMode.w - 100;
-    _height = displayMode.h - 100;
+    _max_width = displayMode.w;
+    _max_height = displayMode.h;
+    _width = (_max_width >= desired_screen_w ? desired_screen_w : _max_width);
+    _height = (_max_height >= desired_screen_h ? desired_screen_h : _max_height);
 
     _window = SDL_CreateWindow(
         "Bunny Blocks",
@@ -64,7 +72,7 @@ bool io::init_graph()
     _surface = SDL_GetWindowSurface(_window);
 
     //Fill the surface white
-    SDL_FillRect(_surface, NULL, SDL_MapRGB(_surface->format, 0xFF, 0xFF, 0xFF));
+    SDL_FillRect(_surface, nullptr, SDL_MapRGB(_surface->format, 0xFF, 0xFF, 0xFF));
     
     //Update the surface
     SDL_UpdateWindowSurface(_window);

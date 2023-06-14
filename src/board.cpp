@@ -62,6 +62,8 @@ board::is_game_over()
 void
 board::init_board()
 {
+    _board_position = (_screen_width / 2);
+    
     for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
         for (int j{ 0 }; j < static_cast<int>(board_height); ++j)
             _board[i][j] = pos_free;
