@@ -30,8 +30,8 @@ enum color
     magenta,
     light_grey,
     brick,
-    light_brick,
     dark_brick,
+    light_brick,
     white,
     
     count

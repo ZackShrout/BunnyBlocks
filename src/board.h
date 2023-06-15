@@ -19,11 +19,11 @@ public:
     /// @brief Get the horizontal position in pixels of block in given position
     /// @param pos Horizontal position of the block in the board
     /// @return Position in pixels of given block
-    int get_x_pos_in_pixels (int pos) { return ((_board_position - (block_size * (board_width / 2))) + (pos * block_size)); }
+    int get_x_pos_in_pixels(int pos) { return ((_board_position - (block_size * (board_width / 2))) + (pos * block_size)); }
     /// @brief Get the vertical position in pixels of block in given position
     /// @param pos Vertical position of the block in the board
     /// @return Position in pixels of given block
-    int get_y_pos_in_pixels (int pos) { return ((_screen_height - (block_size * board_height)) + (pos * block_size)); }
+    int get_y_pos_in_pixels(int pos) { return ((_screen_height - (block_size * board_height)) + (pos * block_size)); }
     /// @brief Get the center position of the board from the left of the screen
     /// @return Center position of the board
     int get_board_position() {return _board_position; }
@@ -31,7 +31,12 @@ public:
     /// @param x Horizontal position in blocks
     /// @param y Vertical position in blocks
     /// @return True - empty, false - filled
-    bool is_free_block (int x, int y) { return _board[x][y] == pos_free; }
+    bool is_free_block(int x, int y) { return _board[x][y] == 0; }
+    /// @brief Check the type of piece that is stored in the board at a given coordinate
+    /// @param x x position of piece to check
+    /// @param y y position of piece to check
+    /// @return Piece type
+    int get_piece_type(int x, int y) { return _board[x][y] - 1; }
     /// @brief Check if the piece can be stored at this position without any collision
     /// @param x Horizontal position in blocks
     /// @param y Vertical position in blocks
@@ -63,5 +68,4 @@ private:
     int     _screen_height;
     int     _screen_width;
     int     _board_position{ 0 };
-    enum    { pos_free, pos_filled }; // pos_free = free position of the board; pos_filled = filled position of the board
 };

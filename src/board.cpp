@@ -29,7 +29,7 @@ board::store_piece(int x, int y, int piece, int rotation)
         for (int j1{ y }, j2{ 0 }; j1 < y + static_cast<int>(piece_blocks); ++j1, ++j2)
             // Store only the blocks of the piece that are not holes
             if (_pieces->get_block_type(piece, rotation, j2, i2) != 0)
-                _board[i1][j1] = pos_filled;
+                _board[i1][j1] = piece + 1;
 }
 
 void
@@ -40,7 +40,7 @@ board::delete_possible_lines()
         int i{ 0 };
         while (i < static_cast<int>(board_width))
         {
-            if (_board[i][j] != pos_filled) break;
+            if (!(_board[i][j] > 0)) break;
             ++i;
         }
 
@@ -54,7 +54,7 @@ board::is_game_over()
 {
     //If the first line has blocks, then, game over
     for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
-        if (_board[i][0] == pos_filled) return true;
+        if (_board[i][0] > 0) return true;
 
     return false;
 }
@@ -66,7 +66,7 @@ board::init_board()
     
     for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
         for (int j{ 0 }; j < static_cast<int>(board_height); ++j)
-            _board[i][j] = pos_free;
+            _board[i][j] = 0;
 }
 
 void
