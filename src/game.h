@@ -4,7 +4,7 @@
 #include <random>
 #include "board.h"
 #include "pieces.h"
-#include "io.h"
+#include "SDL/io.h"
 
 static constexpr int wait_time{ 700 }; // Number of milliseconds that the piece remains before going 1 block down
 

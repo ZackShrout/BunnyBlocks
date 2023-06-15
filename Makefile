@@ -1,5 +1,5 @@
 build:
-	g++ ./src/*.cpp -g -Wextra -lSDL2 -o bunnyblocks 
+	g++ ./src/*.cpp ./src/SDL/*.cpp -g -Wextra -lSDL2 -o bunnyblocks 
 
 run:
 	./bunnyblocks
