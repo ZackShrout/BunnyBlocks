@@ -44,6 +44,8 @@ namespace
 
 void game::draw_scene()
 {
+    _io->clear_screen();
+    
     draw_board();
     draw_piece(_pos_x, _pos_y, _piece, _rotation);
     draw_piece(_next_pos_x, _next_pos_y, _next_piece, _next_rotation);
@@ -105,9 +107,6 @@ void game::draw_board()
     int x2{ _board->get_board_position() + static_cast<int>(block_size * (board_width / 2)) };
     int y{ _screen_height - static_cast<int>((block_size * board_height) + board_offset) };
 
-    // Check that the vertical margin is not to small
-    //assert (y > min_vertical_margin);
-
     // Draw the vertical board boundaries
     for (int i{ 0 }; i <= static_cast<int>(block_size * board_height); i += block_size)
     {
@@ -124,9 +123,6 @@ void game::draw_board()
                          x1 + x_offset, _screen_height - 1);
     }
 
-    // Check that the horizontal margin is not to small
-    //assert (x1 > min_horizontal_margin);
-
     // Drawing the blocks that are already stored in the board
     x1 += 1;
     for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
@@ -138,4 +134,6 @@ void game::draw_board()
                                  (x1 + i * block_size) + block_size - 1,
                                  (y + j * block_size) + block_size - 1, _board->get_piece_type(i, j));
             }
+
+    _io->draw_hud(0, 1);
 }

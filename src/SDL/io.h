@@ -51,10 +51,12 @@ public:
     int get_key();
     int is_key_down(int key);
     void update_screen();
+    void draw_hud(int points, int level);
 
 private:
     SDL_Surface*    _surface{};
     SDL_Window*     _window{};
+    SDL_Renderer*   _renderer{};
     int             _width{ 0 };
     int             _height{ 0 };
     int             _max_width{ 0 };

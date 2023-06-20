@@ -1,10 +1,14 @@
 #include <stdlib.h>
+#include <iostream>
 #include "io.h"
 
 namespace
 {
-    constexpr int desired_screen_w = 580;
-    constexpr int desired_screen_h = 420;
+    constexpr int   desired_screen_w = 580;
+    constexpr int   desired_screen_h = 420;
+
+    int             current_points_{ -1 };
+    int             current_level_{ -1 };
 } // anonymous
 
 io::~io()
@@ -13,7 +17,8 @@ io::~io()
     SDL_Quit();
 }
 
-void io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
+void
+io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
 {
     SDL_Rect rect;
     rect.x = x1;
@@ -25,15 +30,19 @@ void io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
     uint8_t g = (_colors[c] >> 16) & 0xff;
     uint8_t b = (_colors[c] >> 8) & 0xff;
     
-    SDL_FillRect(_surface, &rect, SDL_MapRGB(_surface->format, r, g, b));
+    SDL_SetRenderDrawColor(_renderer, r, g, b, 0xff);
+    SDL_RenderFillRect(_renderer, &rect);
 }
 
-void io::clear_screen()
+void
+io::clear_screen()
 {
-    SDL_FillRect(_surface, nullptr, SDL_MapRGB(_surface->format, 0x00, 0x00, 0x00));
+    SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x00, 0xff);
+    SDL_RenderClear(_renderer);
 }
 
-bool io::init_graph()
+bool
+io::init_graph()
 {
     SDL_DisplayMode     displayMode;
 	uint8_t             video_bpp;
@@ -42,7 +51,7 @@ bool io::init_graph()
 	// Initialize SDL
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0 )
     {
-		fprintf(stderr, "Couldn't initialize SDL: %s\n", SDL_GetError());
+        std::cerr << "Couldn't initialize SDL... " << SDL_GetError() << std::endl;
 		return false;
 	}
 
@@ -64,23 +73,22 @@ bool io::init_graph()
 
     if (!_window)
     {
-		fprintf(stderr, "Error creating SDL window: %s\n", SDL_GetError());
+        std::cerr << "Error creating SDL window... " << SDL_GetError() << std::endl;
         return false;
     }
 
-    //Get window surface
-    _surface = SDL_GetWindowSurface(_window);
-
-    //Fill the surface white
-    SDL_FillRect(_surface, nullptr, SDL_MapRGB(_surface->format, 0xFF, 0xFF, 0xFF));
-    
-    //Update the surface
-    SDL_UpdateWindowSurface(_window);
+    _renderer = SDL_CreateRenderer(_window, -1, 0);
+    if (!_renderer)
+    {
+        std::cerr << "Error creating SDL renderer... " << SDL_GetError() << std::endl;
+        return false;
+    }
 
     return true;
 }
 
-int io::poll_key()
+int
+io::poll_key()
 {
     SDL_Event event;
 
@@ -97,7 +105,8 @@ int io::poll_key()
 	return -1;
 }
 
-int io::get_key()
+int
+io::get_key()
 {
     SDL_Event event;
 
@@ -113,7 +122,8 @@ int io::get_key()
 	return event.key.keysym.sym;
 }
 
-int io::is_key_down(int key)
+int
+io::is_key_down(int key)
 {
 	int num_keys;
 
@@ -124,8 +134,28 @@ int io::is_key_down(int key)
     return 0;
 }
 
-
-void io::update_screen()
+void
+io::update_screen()
 {
-    SDL_UpdateWindowSurface(_window);
+    SDL_RenderPresent(_renderer);
+}
+
+void
+io::draw_hud(int points, int level)
+{
+    if (current_points_ == -1 || current_points_ != points)
+    {
+        // TODO: Render the points text to a texture
+
+        current_points_ = points;
+    }
+
+    if (current_level_ == -1 || current_level_ != level)
+    {
+        // TODO: Render the level text to a texture
+
+        current_level_ = level;
+    }
+    
+    // TODO: Display text textures on the screen
 }
