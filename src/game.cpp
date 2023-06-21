@@ -49,7 +49,7 @@ void game::update()
     {
         _score = _board->lines_deleted();
 
-        if (_score != 0 && (_score % 15) == 0)
+        if (_score != 0 && ((_score - (_score % 15)) / 15) > _level - 1)
         {
             ++_level;
             _wait_time -= static_cast<int>(_wait_time / 4.f);

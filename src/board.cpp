@@ -1,4 +1,12 @@
+#include <vector>
+#include <algorithm>
 #include "board.h"
+
+namespace
+{
+    std::vector<int>    lines_to_delete_;
+    bool                lines_for_deletion_{ false };
+} // anonymous
 
 bool
 board::is_possible_movement(int x, int y, int piece, int rotation)
@@ -33,8 +41,10 @@ board::store_piece(int x, int y, int piece, int rotation)
 }
 
 void
-board::delete_possible_lines()
+board::delete_possible_lines(float dt)
 {
+    static float delay{ 0.f };
+
     for (int j{ 0 }; j < static_cast<int>(board_height); ++j)
     {
         int i{ 0 };
@@ -44,8 +54,39 @@ board::delete_possible_lines()
             ++i;
         }
 
+    // std::vector<int> v = { 4, 7, 5, 2, 6, 9 };
+    // int key = 6;
+ 
+    // if (std::find(v.begin(), v.end(), key) != v.end()) {
+        // std::cout << "Element found";
+    // }
+
         if (i == board_width)
-            delete_line(j);
+            if (!lines_to_delete_.size() ||
+                std::find(lines_to_delete_.begin(), lines_to_delete_.end(), j) == lines_to_delete_.end())
+            {
+                
+                lines_to_delete_.emplace_back(j);
+                lines_for_deletion_ = true;
+            }
+    }
+
+    if (lines_for_deletion_ && delay < .25f)
+    {
+        delay += dt;
+        return;
+    }
+
+    if (lines_for_deletion_)
+    {
+        for (uint32_t i{ 0 }; i < lines_to_delete_.size(); ++i)
+        {
+            delete_line(lines_to_delete_[i], dt);
+        }
+        
+        lines_to_delete_.clear();
+        lines_for_deletion_ = false;
+        delay = 0.f;
     }
 }
 
@@ -70,12 +111,12 @@ board::init_board()
 }
 
 void
-board::delete_line(int y)
-{
+board::delete_line(int y, float dt)
+{   
     // Moves all the upper lines one row down
     for (int j{ y }; j > 0; --j)
         for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
             _board[i][j] = _board[i][j-1];
-
+    
     ++_lines_deleted;
 }

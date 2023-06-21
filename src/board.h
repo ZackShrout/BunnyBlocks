@@ -51,7 +51,8 @@ public:
     /// @param rotation Specify which of th 4 possible rotations
     void store_piece(int x, int y, int piece, int rotation);
     /// @brief Delete all the lines that should be removed
-    void delete_possible_lines();
+    /// @param dt Timestep
+    void delete_possible_lines(float dt);
     /// @brief Check if the game is over becase a piece have achived the upper position
     /// @return True - game over, false - game not over
     bool is_game_over();
@@ -62,7 +63,8 @@ private:
     void init_board();
     /// @brief Delete a line of the board by moving all above lines down
     /// @param y Vertical position in blocks of the line to delete
-    void delete_line (int y);
+    /// @param dt Timestep
+    void delete_line (int y, float dt);
     
     int     _board[board_width][board_height]; // Board that contains the pieces
     pieces* _pieces;
