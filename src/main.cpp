@@ -78,7 +78,7 @@ int main()
 
         unsigned long time2{ SDL_GetTicks() };
 
-        if ((time2 - time1) > wait_time)
+        if ((time2 - time1) > static_cast<unsigned long>(game_.wait_time()))
         {
             if (board_.is_possible_movement(game_.pos_x(), game_.pos_y() + 1, game_.piece(), game_.rotation()))
                 game_.set_pos_y(game_.pos_y() + 1);

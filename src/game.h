@@ -6,8 +6,6 @@
 #include "pieces.h"
 #include "SDL/io.h"
 
-static constexpr int wait_time{ 700 }; // Number of milliseconds that the piece remains before going 1 block down
-
 class game
 {
 public:
@@ -30,6 +28,7 @@ public:
     /// @brief Get current piece rotation
     /// @return Current piece rotation
     int rotation() { return _rotation; }
+    int wait_time() { return _wait_time; }
     /// @brief Set current piece x
     /// @param x Horizontal position to set
     void set_pos_x(int x) { _pos_x = x; }
@@ -73,6 +72,7 @@ private:
     int     _level{ 1 };
     int     _score{ 0 };
     int     _screen_height;
+    int     _wait_time{ 700 };
     board*  _board;
     pieces* _pieces;
     io*     _io;

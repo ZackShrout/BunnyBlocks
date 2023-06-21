@@ -1,4 +1,5 @@
 #include "game.h"
+#include <iostream>
 
 namespace
 {
@@ -48,8 +49,12 @@ void game::update()
     {
         _score = _board->lines_deleted();
 
-        if (_score != 0 && (_score % 5) == 0)
+        if (_score != 0 && (_score % 15) == 0)
+        {
             ++_level;
+            _wait_time -= static_cast<int>(_wait_time / 4.f);
+            std::cerr << "Wait time: " << _wait_time << std::endl;
+        }
     }
 
     draw_scene();
