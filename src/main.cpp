@@ -11,9 +11,9 @@ int main()
     bool running{ true };
     while (running)
     {
-        io_.clear_screen(); // Clear screen
-        game_.draw_scene(); // Draw staff
-        io_.update_screen(); // Put the graphic context in the screen
+        io_.clear_screen();
+        game_.update();
+        io_.render();
 
         int key{ io_.poll_key() };
 

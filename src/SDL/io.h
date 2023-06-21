@@ -41,16 +41,17 @@ class io
 {
 public:
     io() { init_graph(); }
-    ~io();
+    ~io() { shutdown(); }
     void draw_rectangle(int x1, int y1, int x2, int y2, color c);
     void clear_screen();
     int get_screen_height() { return _height; }
     int get_screen_width() {return _width; }
     bool init_graph();
+    void shutdown();
     int poll_key();
     int get_key();
     int is_key_down(int key);
-    void update_screen();
+    void render();
     void draw_hud(int points, int level);
 
 private:

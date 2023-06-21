@@ -42,13 +42,17 @@ namespace
     constexpr int board_offset{ static_cast<int>(block_size) };
 } // anonymous
 
-void game::draw_scene()
+void game::update()
 {
-    _io->clear_screen();
-    
-    draw_board();
-    draw_piece(_pos_x, _pos_y, _piece, _rotation);
-    draw_piece(_next_pos_x, _next_pos_y, _next_piece, _next_rotation);
+    if (_score != _board->lines_deleted())
+    {
+        _score = _board->lines_deleted();
+
+        if (_score != 0 && (_score % 5) == 0)
+            ++_level;
+    }
+
+    draw_scene();
 }
 
 void game::create_new_piece()
@@ -63,6 +67,8 @@ void game::create_new_piece()
     _next_piece = get_rand(0, 6);
     _next_rotation = get_rand(0, 3);
 }
+
+// PRIVATE
 
 void game::init_game()
 {
@@ -79,7 +85,14 @@ void game::init_game()
     _next_pos_y = 5;
 }
 
-// PRIVATE
+void game::draw_scene()
+{
+    _io->clear_screen();
+    
+    draw_board();
+    draw_piece(_pos_x, _pos_y, _piece, _rotation);
+    draw_piece(_next_pos_x, _next_pos_y, _next_piece, _next_rotation);
+}
 
 void game::draw_piece(int x, int y, int piece, int rotation)
 {
@@ -135,5 +148,5 @@ void game::draw_board()
                                  (y + j * block_size) + block_size - 1, _board->get_piece_type(i, j));
             }
 
-    _io->draw_hud(0, 1);
+    _io->draw_hud(_score, _level);
 }

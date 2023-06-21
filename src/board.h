@@ -55,6 +55,7 @@ public:
     /// @brief Check if the game is over becase a piece have achived the upper position
     /// @return True - game over, false - game not over
     bool is_game_over();
+    int lines_deleted() { return _lines_deleted; }
 
 private:
     /// @brief Init the board blocks with free positions
@@ -68,4 +69,5 @@ private:
     int     _screen_height;
     int     _screen_width;
     int     _board_position{ 0 };
+    int     _lines_deleted{ 0 };
 };

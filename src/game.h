@@ -12,12 +12,12 @@ class game
 {
 public:
 
-    game (board* board, pieces* pieces, io* io, int screen_height)
+    game(board* board, pieces* pieces, io* io, int screen_height)
             : _board{ board }, _pieces{ pieces }, _io{ io }, _screen_height{ screen_height } { init_game(); }
-    /// @brief Draw all the objects of the scene
-    void draw_scene ();
+    /// @brief Update the game
+    void update();
     /// @brief Create a new random piece
-    void create_new_piece ();
+    void create_new_piece();
     /// @brief Get current piece x
     /// @return Current piece x
     int pos_x() { return _pos_x; }
@@ -51,6 +51,8 @@ private:
     int get_rand (int a, int b) { return rand() % (b - a + 1) + a; }
     /// @brief Initialize game
     void init_game();
+    /// @brief Draw all the objects of the scene
+    void draw_scene();
     /// @brief Draw one piece to the board
     /// @param x Horizontal position in blocks
     /// @param y Vertical position in blocks
@@ -68,6 +70,8 @@ private:
     int     _next_pos_y{ 0 };
     int     _next_piece{ 0 };
     int     _next_rotation{ 0 };
+    int     _level{ 1 };
+    int     _score{ 0 };
     int     _screen_height;
     board*  _board;
     pieces* _pieces;

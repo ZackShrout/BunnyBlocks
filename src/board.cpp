@@ -76,4 +76,6 @@ board::delete_line(int y)
     for (int j{ y }; j > 0; --j)
         for (int i{ 0 }; i < static_cast<int>(board_width); ++i)
             _board[i][j] = _board[i][j-1];
+
+    ++_lines_deleted;
 }

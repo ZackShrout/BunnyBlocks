@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <iostream>
+#include <string>
+#include "sdl_texture.h"
 #include "io.h"
 
 namespace
@@ -9,13 +11,11 @@ namespace
 
     int             current_points_{ -1 };
     int             current_level_{ -1 };
-} // anonymous
 
-io::~io()
-{
-    SDL_DestroyWindow( _window );
-    SDL_Quit();
-}
+    TTF_Font*       hud_font_{ nullptr };
+    sdl_texture     level_text_;
+    sdl_texture     score_text_;
+} // anonymous
 
 void
 io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
@@ -84,7 +84,52 @@ io::init_graph()
         return false;
     }
 
+    int img_flags = IMG_INIT_PNG;
+    if(!(IMG_Init(img_flags) & img_flags))
+    {
+        std::cerr << "SDL_image could not initialize! SDL_image Error... " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    if(TTF_Init() == -1)
+    {
+        std::cerr << "SDL_ttf could not initialize! SDL_ttf Error... " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    hud_font_ = TTF_OpenFont("fonts/Monoisome-Regular.ttf", 16);
+
+    if(!hud_font_)
+    {   
+        std::cerr << "Failed to load HUD font! SDL_ttf Error... " << TTF_GetError() << std::endl;
+        return false;
+    }
+
+    level_text_.renderer(_renderer);
+    score_text_.renderer(_renderer);
+    level_text_.font(hud_font_);
+    score_text_.font(hud_font_);
+
     return true;
+}
+
+void
+io::shutdown()
+{
+	level_text_.free();
+	score_text_.free();
+
+	TTF_CloseFont(hud_font_);
+	hud_font_ = nullptr;
+
+	SDL_DestroyRenderer(_renderer);
+	SDL_DestroyWindow(_window);
+	_window = nullptr;
+	_renderer = nullptr;
+
+	TTF_Quit();
+	IMG_Quit();
+	SDL_Quit();
 }
 
 int
@@ -134,8 +179,7 @@ io::is_key_down(int key)
     return 0;
 }
 
-void
-io::update_screen()
+void io::render()
 {
     SDL_RenderPresent(_renderer);
 }
@@ -145,17 +189,47 @@ io::draw_hud(int points, int level)
 {
     if (current_points_ == -1 || current_points_ != points)
     {
-        // TODO: Render the points text to a texture
+        SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
+        std::string lable{ std::to_string(points) };
+        int digits{ static_cast<int>(lable.size()) };
+
+        if (digits != 9)
+        {
+            std::string prepend{ "0" };
+            
+            // NOTE: prepend already has one 0 in it, so we only need to fill (8 - digits)
+            for (int i{ 0 }; i < 8 - digits; ++i)
+            {
+                prepend = prepend + "0";
+            }
+
+            lable = prepend + lable;
+        }
+
+        if(!score_text_.load_from_rendered_text(lable.c_str(), text_color))
+        {
+            std::cerr << "Failed to render text texture..." << std::endl;
+            return;
+        }
 
         current_points_ = points;
     }
 
     if (current_level_ == -1 || current_level_ != level)
-    {
-        // TODO: Render the level text to a texture
+    {   
+        SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
+        std::string lable{ "Level: "};
+        lable = lable + std::to_string(level);
+
+        if(!level_text_.load_from_rendered_text(lable.c_str(), text_color))
+        {
+            std::cerr << "Failed to render text texture..." << std::endl;
+            return;
+        }
 
         current_level_ = level;
     }
     
-    // TODO: Display text textures on the screen
+    level_text_.render(60, 100);
+    score_text_.render(60, 200);
 }
