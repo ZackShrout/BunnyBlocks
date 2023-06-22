@@ -61,7 +61,7 @@ int main()
                     exit(0);
                 }
 
-                game_.create_new_piece();
+                game_.new_piece();
                 
                 break;
             }
@@ -102,7 +102,7 @@ int main()
                     exit(0);
                 }
 
-                game_.create_new_piece();
+                game_.new_piece();
             }
 
             time1_ = SDL_GetTicks();

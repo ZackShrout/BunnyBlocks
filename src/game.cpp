@@ -1,5 +1,9 @@
 #include "game.h"
 #include <iostream>
+#include <chrono>
+#include <random>
+#include <algorithm>
+#include <vector>
 
 namespace
 {
@@ -40,7 +44,17 @@ namespace
         io->draw_rectangle(x1 + 2, y1 + 2, x2 -2, y2 -2, brick);
     }
 
-    constexpr int board_offset{ static_cast<int>(block_size) };
+    void
+    shuffle_pieces_bag(std::vector<int>& bag)
+    {
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::shuffle(bag.begin(), bag.end(), std::default_random_engine(seed));
+    }
+
+    constexpr int       board_offset{ static_cast<int>(block_size) };
+    std::vector<int>    pieces_{ 0, 1, 2, 3, 4, 5, 6 };
+    std::vector<int>    next_pieces_{ 0, 1, 2, 3, 4, 5, 6 };
+    int                 piece_index_{ 0 };
 } // anonymous
 
 void game::update()
@@ -60,16 +74,29 @@ void game::update()
     draw_scene();
 }
 
-void game::create_new_piece()
+void game::new_piece()
 {
-    // Set current piece to previous next piece
+    ++piece_index_;
+
+    if (piece_index_ == 7)
+    {
+        pieces_ = next_pieces_;
+        piece_index_ = 0;     
+    }
+
     _piece = _next_piece;
     _rotation = _next_rotation;
     _pos_x = (board_width / 2) + _pieces->get_x_initial_position(_piece, _rotation);
     _pos_y = _pieces->get_y_initial_position(_piece, _rotation);
 
-    // Get a new random next piece
-    _next_piece = get_rand(0, 6);
+    if (piece_index_ == 6)
+    {
+        shuffle_pieces_bag(next_pieces_);
+        _next_piece = next_pieces_.at(0);
+    }
+    else
+        _next_piece = pieces_.at(piece_index_ + 1);
+
     _next_rotation = get_rand(0, 3);
 }
 
@@ -77,14 +104,13 @@ void game::create_new_piece()
 
 void game::init_game()
 {
-    srand((unsigned int)time(nullptr));
-
-    _piece = get_rand(0, 6);
+    shuffle_pieces_bag(pieces_);
+    _piece = pieces_.at(0);
     _rotation = get_rand(0, 3);
     _pos_x = (board_width / 2) + _pieces->get_x_initial_position(_piece, _rotation);
     _pos_y = _pieces->get_y_initial_position(_piece, _rotation);
 
-    _next_piece = get_rand(0, 6);
+    _next_piece = pieces_.at(1);
     _next_rotation = get_rand(0, 3);
     _next_pos_x = board_width + 3;
     _next_pos_y = 5;

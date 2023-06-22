@@ -15,7 +15,7 @@ public:
     /// @brief Update the game
     void update();
     /// @brief Create a new random piece
-    void create_new_piece();
+    void new_piece();
     /// @brief Get current piece x
     /// @return Current piece x
     int pos_x() { return _pos_x; }
