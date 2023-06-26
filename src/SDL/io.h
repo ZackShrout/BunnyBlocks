@@ -33,6 +33,7 @@ enum color
     dark_brick,
     light_brick,
     white,
+    fade,
     
     count
 };
@@ -42,6 +43,7 @@ class io
 public:
     io() { init_graph(); }
     ~io() { shutdown(); }
+    void draw_filled_rectangle(int x1, int y1, int x2, int y2, color c);
     void draw_rectangle(int x1, int y1, int x2, int y2, color c);
     void clear_screen();
     int get_screen_height() { return _height; }
@@ -53,6 +55,7 @@ public:
     int is_key_down(int key);
     void render();
     void draw_hud(int points, int level);
+    void draw_pause();
 
 private:
     SDL_Surface*    _surface{};
@@ -92,6 +95,7 @@ private:
                         0x5900'00ff,    // brick
                         0x3300'00ff,    // dark brick
                         0x8c19'19ff,    // light brick
-                        0xffff'ffff     // white
+                        0xffff'ffff,    // white
+                        0x0000'007f     // fade
                     };
 };

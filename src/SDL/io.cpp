@@ -13,9 +13,29 @@ namespace
     int             current_level_{ -1 };
 
     TTF_Font*       hud_font_{ nullptr };
+    TTF_Font*       heading_font_{ nullptr };
     sdl_texture     level_text_;
     sdl_texture     score_text_;
+    sdl_texture     paused_text_;
 } // anonymous
+
+void
+io::draw_filled_rectangle(int x1, int y1, int x2, int y2, color c)
+{
+    SDL_Rect rect;
+    rect.x = x1;
+    rect.y = y1;
+    rect.w = x2 - x1;
+    rect.h = y2 - y1;
+
+    uint8_t r = (_colors[c] >> 24) & 0xff;
+    uint8_t g = (_colors[c] >> 16) & 0xff;
+    uint8_t b = (_colors[c] >> 8) & 0xff;
+    uint8_t a = _colors[c] & 0xff;
+    
+    SDL_SetRenderDrawColor(_renderer, r, g, b, a);
+    SDL_RenderFillRect(_renderer, &rect);
+}
 
 void
 io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
@@ -29,9 +49,10 @@ io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
     uint8_t r = (_colors[c] >> 24) & 0xff;
     uint8_t g = (_colors[c] >> 16) & 0xff;
     uint8_t b = (_colors[c] >> 8) & 0xff;
+    uint8_t a = _colors[c] & 0xff;
     
-    SDL_SetRenderDrawColor(_renderer, r, g, b, 0xff);
-    SDL_RenderFillRect(_renderer, &rect);
+    SDL_SetRenderDrawColor(_renderer, r, g, b, a);
+    SDL_RenderDrawRect(_renderer, &rect);
 }
 
 void
@@ -84,6 +105,8 @@ io::init_graph()
         return false;
     }
 
+    SDL_SetRenderDrawBlendMode(_renderer, SDL_BLENDMODE_BLEND);
+
     int img_flags = IMG_INIT_PNG;
     if(!(IMG_Init(img_flags) & img_flags))
     {
@@ -105,10 +128,28 @@ io::init_graph()
         return false;
     }
 
+    heading_font_ = TTF_OpenFont("fonts/Monoisome-Regular.ttf", 28);
+
+    if(!hud_font_)
+    {   
+        std::cerr << "Failed to load heading font! SDL_ttf Error... " << TTF_GetError() << std::endl;
+        return false;
+    }
+
     level_text_.renderer(_renderer);
     score_text_.renderer(_renderer);
+    paused_text_.renderer(_renderer);
     level_text_.font(hud_font_);
     score_text_.font(hud_font_);
+    paused_text_.font(heading_font_);
+
+    SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
+
+    if(!paused_text_.load_from_rendered_text("Paused", text_color))
+    {
+        std::cerr << "Failed to render text texture..." << std::endl;
+        return false;
+    }
 
     return true;
 }
@@ -179,7 +220,8 @@ io::is_key_down(int key)
     return 0;
 }
 
-void io::render()
+void
+io::render()
 {
     SDL_RenderPresent(_renderer);
 }
@@ -229,7 +271,17 @@ io::draw_hud(int points, int level)
 
         current_level_ = level;
     }
-    
+
     level_text_.render(60, 100);
     score_text_.render(60, 200);
+}
+
+void
+io::draw_pause()
+{
+    int x{ static_cast<int>(_width / 2.f) - static_cast<int>(paused_text_.width() / 2.f) };
+    int y{ static_cast<int>(_height / 2.f) - static_cast<int>(paused_text_.height() / 2.f) };
+
+    draw_rectangle(x - 30, y - 20, x + paused_text_.width() + 30, y + paused_text_.height() + 20, white);
+    paused_text_.render(x, y);
 }

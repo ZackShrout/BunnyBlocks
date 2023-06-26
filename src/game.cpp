@@ -7,8 +7,17 @@
 
 namespace
 {
+    struct rect_info
+    {
+        io*     gfx;
+        int     left;
+        int     top;
+        int     right;
+        int     bottom;
+    };
+
     void
-    draw_piece_block(io* io, int x1, int y1, int x2, int y2, int piece)
+    draw_piece_block(const rect_info& info, int piece)
     {
         color c; // Color of the block
         color h; // Highlight color of the block
@@ -26,22 +35,35 @@ namespace
         }
 
         // Draw highlight color
-        io->draw_rectangle(x1, y1, x2, y2, h);
+        info.gfx->draw_filled_rectangle(info.left, info.top, info.right, info.bottom, h);
         // Draw shadow color
-        io->draw_rectangle(x1 + 2, y1 + 2, x2, y2, s);
+        info.gfx->draw_filled_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, s);
         // Draw regular color
-        io->draw_rectangle(x1 + 2, y1 + 2, x2 -2, y2 -2, c);
+        info.gfx->draw_filled_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, c);
     }
 
     void
-    draw_board_block(io* io, int x1, int y1, int x2, int y2)
+    draw_board_block(const rect_info& info)
     {
         // Draw highlight color
-        io->draw_rectangle(x1, y1, x2, y2, light_brick);
+        info.gfx->draw_filled_rectangle(info.left, info.top, info.right, info.bottom, light_brick);
         // Draw shadow color
-        io->draw_rectangle(x1 + 2, y1 + 2, x2, y2, dark_brick);
+        info.gfx->draw_filled_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, dark_brick);
         // Draw regular color
-        io->draw_rectangle(x1 + 2, y1 + 2, x2 -2, y2 -2, brick);
+        info.gfx->draw_filled_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, brick);
+    }
+
+    void
+    darken_screen(const rect_info& screen)
+    {
+        screen.gfx->draw_filled_rectangle(screen.left, screen.top, screen.right, screen.bottom, fade);
+    }
+
+    void
+    draw_pause_overlay(const rect_info& screen)
+    {
+        darken_screen(screen);
+        screen.gfx->draw_pause();
     }
 
     void
@@ -123,10 +145,20 @@ void game::draw_scene()
     draw_board();
     draw_piece(_pos_x, _pos_y, _piece, _rotation);
     draw_piece(_next_pos_x, _next_pos_y, _next_piece, _next_rotation);
+
+    if (_is_paused)
+    {
+        rect_info info{ _io, 0, 0, _io->get_screen_width(), _io->get_screen_height() };
+
+        draw_pause_overlay(info);
+    }
 }
 
 void game::draw_piece(int x, int y, int piece, int rotation)
 {
+    rect_info info{};
+    info.gfx = _io;
+    
     // Obtain the position in pixel in the screen of the block we want to draw
     int pixels_x = _board->get_x_pos_in_pixels(x);
     int pixels_y = _board->get_y_pos_in_pixels(y) - board_offset;
@@ -137,15 +169,21 @@ void game::draw_piece(int x, int y, int piece, int rotation)
         {
             if (_pieces->get_block_type(piece, rotation, j, i) != 0)
             {
-                draw_piece_block(_io, pixels_x + i * block_size, pixels_y + j * block_size,
-                                 (pixels_x + i * block_size) + block_size - 1,
-                                 (pixels_y + j * block_size) + block_size - 1, piece);
+                info.left = pixels_x + i * block_size;
+                info.top = pixels_y + j * block_size;
+                info.right = (pixels_x + i * block_size) + block_size - 1;
+                info.bottom = (pixels_y + j * block_size) + block_size - 1;
+
+                draw_piece_block(info, piece);
             }
         }
 }
 
 void game::draw_board()
 {
+    rect_info info{};
+    info.gfx = _io;
+
     // Calculate the limits of the board in pixels
     int x1{ _board->get_board_position() - static_cast<int>(block_size * (board_width / 2)) - 1 };
     int x2{ _board->get_board_position() + static_cast<int>(block_size * (board_width / 2)) };
@@ -154,8 +192,17 @@ void game::draw_board()
     // Draw the vertical board boundaries
     for (int i{ 0 }; i <= static_cast<int>(block_size * board_height); i += block_size)
     {
-        draw_board_block(_io, x1 - block_size, y + i, x1, y + i + block_size - 1);
-        draw_board_block(_io, x2, y + i, x2 + block_size, y + i + block_size - 1);
+        info.left = x1 - block_size;
+        info.top = y + i;
+        info.right = x1;
+        info.bottom = y + i + block_size - 1;
+
+        draw_board_block(info);
+
+        info.left = x2;
+        info.right = x2 + block_size;
+
+        draw_board_block(info);
     }
 
     // Draw the horizontal board boundaries
@@ -163,8 +210,12 @@ void game::draw_board()
     for (int i{ 1 }; i <= static_cast<int>(board_width); ++i)
     {
         x_offset = i * static_cast<int>(block_size);
-        draw_board_block(_io, (x1 - block_size) + x_offset + 1, _screen_height - (int)block_size,
-                         x1 + x_offset, _screen_height - 1);
+        info.left = (x1 - block_size) + x_offset + 1;
+        info.top = _screen_height - (int)block_size;
+        info.right = x1 + x_offset;
+        info.bottom = _screen_height - 1;
+
+        draw_board_block(info);
     }
 
     // Drawing the blocks that are already stored in the board
@@ -174,9 +225,12 @@ void game::draw_board()
             // Check if the block is filled, if so, draw it
             if (!_board->is_free_block(i, j))
             {
-                draw_piece_block(_io, x1 + i * block_size, y + j * block_size,
-                                 (x1 + i * block_size) + block_size - 1,
-                                 (y + j * block_size) + block_size - 1, _board->get_piece_type(i, j));
+                info.left = x1 + i * block_size;
+                info.top = y + j * block_size;
+                info.right = (x1 + i * block_size) + block_size - 1;
+                info.bottom = (y + j * block_size) + block_size - 1;
+
+                draw_piece_block(info, _board->get_piece_type(i, j));
             }
 
     _io->draw_hud(_score, _level);

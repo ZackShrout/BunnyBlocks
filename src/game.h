@@ -41,6 +41,8 @@ public:
     /// @brief Set current piece rotation
     /// @param rotation Rotation to set
     void set_rotation(int rotation) { _rotation = rotation; }
+    void toggle_pause() { _is_paused = !_is_paused; }
+    bool is_paused() const { return _is_paused; }
 
 private:
     /// @brief Get a random int between to integers
@@ -73,6 +75,7 @@ private:
     int     _score{ 0 };
     int     _screen_height;
     int     _wait_time{ 700 };
+    bool    _is_paused{ false };
     board*  _board;
     pieces* _pieces;
     io*     _io;
