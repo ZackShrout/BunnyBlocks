@@ -43,8 +43,7 @@ class io
 public:
     io() { init_graph(); }
     ~io() { shutdown(); }
-    void draw_filled_rectangle(int x1, int y1, int x2, int y2, color c);
-    void draw_rectangle(int x1, int y1, int x2, int y2, color c);
+    void draw_rectangle(int x1, int y1, int x2, int y2, color c, bool filled = true);
     void clear_screen();
     int get_screen_height() { return _height; }
     int get_screen_width() {return _width; }
@@ -56,6 +55,7 @@ public:
     void render();
     void draw_hud(int points, int level);
     void draw_pause();
+    void draw_game_over();
 
 private:
     SDL_Surface*    _surface{};

@@ -17,10 +17,13 @@ namespace
     sdl_texture     level_text_;
     sdl_texture     score_text_;
     sdl_texture     paused_text_;
+    sdl_texture     game_over_text_;
+    sdl_texture     new_game_text_;
+    sdl_texture     exit_text_;
 } // anonymous
 
 void
-io::draw_filled_rectangle(int x1, int y1, int x2, int y2, color c)
+io::draw_rectangle(int x1, int y1, int x2, int y2, color c, bool filled/* = true*/)
 {
     SDL_Rect rect;
     rect.x = x1;
@@ -34,25 +37,11 @@ io::draw_filled_rectangle(int x1, int y1, int x2, int y2, color c)
     uint8_t a = _colors[c] & 0xff;
     
     SDL_SetRenderDrawColor(_renderer, r, g, b, a);
-    SDL_RenderFillRect(_renderer, &rect);
-}
 
-void
-io::draw_rectangle(int x1, int y1, int x2, int y2, color c)
-{
-    SDL_Rect rect;
-    rect.x = x1;
-    rect.y = y1;
-    rect.w = x2 - x1;
-    rect.h = y2 - y1;
-
-    uint8_t r = (_colors[c] >> 24) & 0xff;
-    uint8_t g = (_colors[c] >> 16) & 0xff;
-    uint8_t b = (_colors[c] >> 8) & 0xff;
-    uint8_t a = _colors[c] & 0xff;
-    
-    SDL_SetRenderDrawColor(_renderer, r, g, b, a);
-    SDL_RenderDrawRect(_renderer, &rect);
+    if (filled)
+        SDL_RenderFillRect(_renderer, &rect);
+    else
+        SDL_RenderDrawRect(_renderer, &rect);
 }
 
 void
@@ -139,13 +128,22 @@ io::init_graph()
     level_text_.renderer(_renderer);
     score_text_.renderer(_renderer);
     paused_text_.renderer(_renderer);
+    game_over_text_.renderer(_renderer);
+    new_game_text_.renderer(_renderer);
+    exit_text_.renderer(_renderer);
     level_text_.font(hud_font_);
     score_text_.font(hud_font_);
     paused_text_.font(heading_font_);
+    game_over_text_.font(heading_font_);
+    new_game_text_.font(hud_font_);
+    exit_text_.font(hud_font_);
 
     SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
 
-    if(!paused_text_.load_from_rendered_text("Paused", text_color))
+    if(!paused_text_.load_from_rendered_text("Paused", text_color) ||
+       !game_over_text_.load_from_rendered_text("Game Over...", text_color) ||
+       !new_game_text_.load_from_rendered_text("New Game", text_color) ||
+       !exit_text_.load_from_rendered_text("Exit", text_color))
     {
         std::cerr << "Failed to render text texture..." << std::endl;
         return false;
@@ -282,6 +280,29 @@ io::draw_pause()
     int x{ static_cast<int>(_width / 2.f) - static_cast<int>(paused_text_.width() / 2.f) };
     int y{ static_cast<int>(_height / 2.f) - static_cast<int>(paused_text_.height() / 2.f) };
 
-    draw_rectangle(x - 30, y - 20, x + paused_text_.width() + 30, y + paused_text_.height() + 20, white);
+    draw_rectangle(x - 30, y - 20, x + paused_text_.width() + 30, y + paused_text_.height() + 20, white, false);
     paused_text_.render(x, y);
+}
+
+void
+io::draw_game_over()
+{
+    int x{ static_cast<int>(_width / 2.f) - static_cast<int>(game_over_text_.width() / 2.f) };
+    int game_over_y{ static_cast<int>(_height / 3.f) - static_cast<int>(game_over_text_.height() / 3.f) };
+    int new_game_y{ game_over_y + game_over_text_.height() + 10 };
+    int exit_y{ new_game_y + new_game_text_.height() + 10 };
+
+    draw_rectangle(x - 30, game_over_y - 20,
+                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+                   black);
+    draw_rectangle(x - 30, game_over_y - 20,
+                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+                   white, false);
+    game_over_text_.render(x, game_over_y);
+
+    x = static_cast<int>(_width / 2.f) - static_cast<int>(new_game_text_.width() / 2.f);
+    new_game_text_.render(x, new_game_y);
+
+    x = static_cast<int>(_width / 2.f) - static_cast<int>(exit_text_.width() / 2.f);
+    exit_text_.render(x, exit_y);
 }
