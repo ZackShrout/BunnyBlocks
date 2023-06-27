@@ -8,6 +8,7 @@ public:
     sdl_texture() : _renderer{ nullptr }, _font{ nullptr } {};
     sdl_texture(SDL_Renderer* renderer, TTF_Font* font) : _renderer{ renderer }, _font{ font } {}
     ~sdl_texture() { free(); }
+    DISABLE_COPY_AND_MOVE(sdl_texture);
     /// @brief Loads an image at a specified file path
     /// @param path File path of image to load
     /// @return True on success, false on fail

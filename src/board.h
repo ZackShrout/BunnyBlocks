@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stdint.h>
-
+#include "common.h"
 #include "pieces.h"
 
 static constexpr uint32_t board_line_width{ 6 }; // Width of each of the two lines that delimit the board
