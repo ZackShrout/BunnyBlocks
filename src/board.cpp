@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+#include "pieces.h"
 
 namespace
 {
@@ -19,11 +20,11 @@ board::is_possible_movement(int x, int y, int piece, int rotation)
         {
             // Check if the piece is outside the limits of the board
             if (i1 < 0 || i1 > static_cast<int>(board_width) - 1 || j1 > static_cast<int>(board_height) - 1)
-                if (_pieces->get_block_type(piece, rotation, j2, i2) != 0) return 0;
+                if (bblocks::piece::get_block_type(piece, rotation, j2, i2) != 0) return 0;
 
             // Check if the piece have collisioned with a block already stored in the map
             if (j1 >= 0)
-                if ((_pieces->get_block_type(piece, rotation, j2, i2) != 0) && (!is_free_block(i1, j1))) return false;
+                if ((bblocks::piece::get_block_type(piece, rotation, j2, i2) != 0) && (!is_free_block(i1, j1))) return false;
         }
 
     // No collision
@@ -37,7 +38,7 @@ board::store_piece(int x, int y, int piece, int rotation)
     for (int i1{ x }, i2{ 0 }; i1 < x + static_cast<int>(piece_blocks); ++i1, ++i2)
         for (int j1{ y }, j2{ 0 }; j1 < y + static_cast<int>(piece_blocks); ++j1, ++j2)
             // Store only the blocks of the piece that are not holes
-            if (_pieces->get_block_type(piece, rotation, j2, i2) != 0)
+            if (bblocks::piece::get_block_type(piece, rotation, j2, i2) != 0)
                 _board[i1][j1] = piece + 1;
 }
 
@@ -54,13 +55,6 @@ board::delete_possible_lines(float dt)
             if (!(_board[i][j] > 0)) break;
             ++i;
         }
-
-    // std::vector<int> v = { 4, 7, 5, 2, 6, 9 };
-    // int key = 6;
- 
-    // if (std::find(v.begin(), v.end(), key) != v.end()) {
-        // std::cout << "Element found";
-    // }
 
         if (i == board_width)
             if (!lines_to_delete_.size() ||

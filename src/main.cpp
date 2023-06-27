@@ -2,7 +2,7 @@
 
 int main(int argv, char** args)
 {
-    game game;
+    bblocks::game game;
 
     while (game.is_running())
     {

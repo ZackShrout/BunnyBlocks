@@ -15,8 +15,8 @@ static constexpr uint32_t piece_blocks{ 5 }; // Number of horizontal and vertica
 class board
 {
 public:
-    board(pieces* pieces, int screen_height, int screen_width)
-            : _pieces{ pieces }, _screen_height{ screen_height }, _screen_width{ screen_width } { init_board(); }
+    board(/*pieces* pieces, */int screen_height, int screen_width)
+            : /*_pieces{ pieces }, */_screen_height{ screen_height }, _screen_width{ screen_width } { init_board(); }
     /// @brief Get the horizontal position in pixels of block in given position
     /// @param pos Horizontal position of the block in the board
     /// @return Position in pixels of given block
@@ -68,7 +68,7 @@ private:
     void delete_line (int y, float dt);
     
     int     _board[board_width][board_height]; // Board that contains the pieces
-    pieces* _pieces;
+    //pieces* _pieces;
     int     _screen_height;
     int     _screen_width;
     int     _board_position{ 0 };
