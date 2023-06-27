@@ -1,8 +1,10 @@
-#include <stdlib.h>
+#include "io.h"
+
+#include <cstdlib>
 #include <iostream>
 #include <string>
+
 #include "sdl_texture.h"
-#include "io.h"
 
 namespace
 {
@@ -54,7 +56,7 @@ io::clear_screen()
 bool
 io::init_graph()
 {
-    SDL_DisplayMode     displayMode;
+    SDL_DisplayMode     display_mode;
 	uint8_t             video_bpp;
 	uint32_t            video_flags;
         
@@ -67,9 +69,9 @@ io::init_graph()
 
 	atexit(SDL_Quit);
 
-    SDL_GetCurrentDisplayMode(0, &displayMode);
-    _max_width = displayMode.w;
-    _max_height = displayMode.h;
+    SDL_GetCurrentDisplayMode(0, &display_mode);
+    _max_width = display_mode.w;
+    _max_height = display_mode.h;
     _width = (_max_width >= desired_screen_w ? desired_screen_w : _max_width);
     _height = (_max_height >= desired_screen_h ? desired_screen_h : _max_height);
 
@@ -79,7 +81,7 @@ io::init_graph()
         SDL_WINDOWPOS_CENTERED,
         _width,
         _height,
-        /*SDL_WINDOW_BORDERLESS | SDL_WINDOW_FULLSCREEN*/ SDL_WINDOW_SHOWN);
+        SDL_WINDOW_SHOWN);
 
     if (!_window)
     {
@@ -230,8 +232,8 @@ io::draw_hud(int points, int level)
     if (current_points_ == -1 || current_points_ != points)
     {
         SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
-        std::string lable{ std::to_string(points) };
-        int digits{ static_cast<int>(lable.size()) };
+        std::string label{ std::to_string(points) };
+        int digits{ static_cast<int>(label.size()) };
 
         if (digits != 9)
         {
@@ -240,13 +242,13 @@ io::draw_hud(int points, int level)
             // NOTE: prepend already has one 0 in it, so we only need to fill (8 - digits)
             for (int i{ 0 }; i < 8 - digits; ++i)
             {
-                prepend = prepend + "0";
+                prepend.append("0");
             }
 
-            lable = prepend + lable;
+            label = prepend + label;
         }
 
-        if(!score_text_.load_from_rendered_text(lable.c_str(), text_color))
+        if(!score_text_.load_from_rendered_text(label.c_str(), text_color))
         {
             std::cerr << "Failed to render text texture..." << std::endl;
             return;
@@ -258,10 +260,10 @@ io::draw_hud(int points, int level)
     if (current_level_ == -1 || current_level_ != level)
     {   
         SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
-        std::string lable{ "Level: "};
-        lable = lable + std::to_string(level);
+        std::string label{ "Level: "};
+        label = label + std::to_string(level);
 
-        if(!level_text_.load_from_rendered_text(lable.c_str(), text_color))
+        if(!level_text_.load_from_rendered_text(label.c_str(), text_color))
         {
             std::cerr << "Failed to render text texture..." << std::endl;
             return;

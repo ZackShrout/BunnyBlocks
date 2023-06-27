@@ -1,7 +1,5 @@
 #pragma once
 
-#include <time.h>
-#include <random>
 #include "board.h"
 #include "pieces.h"
 #include "SDL/io.h"

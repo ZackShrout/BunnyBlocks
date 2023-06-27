@@ -15,6 +15,5 @@
 
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
 #include <cmath>
+#include <stdint.h>

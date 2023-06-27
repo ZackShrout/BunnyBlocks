@@ -1,5 +1,6 @@
-#include <iostream>
 #include "sdl_texture.h"
+
+#include <iostream>
 
 bool
 sdl_texture::load_from_file(const char *path)

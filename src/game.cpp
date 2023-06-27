@@ -1,8 +1,8 @@
 #include "game.h"
-#include <iostream>
+
+#include <algorithm>
 #include <chrono>
 #include <random>
-#include <algorithm>
 #include <vector>
 
 namespace
@@ -76,7 +76,7 @@ namespace
     void
     shuffle_pieces_bag(std::vector<int>& bag)
     {
-        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
         std::shuffle(bag.begin(), bag.end(), std::default_random_engine(seed));
     }
 
@@ -89,76 +89,67 @@ namespace
 void
 game::process_input()
 {
-    int key{ _info.game_io.poll_key() };
+	switch (int key{ _info.game_io.poll_key() })
+	{
+	case (SDLK_ESCAPE):
+        _running = false;
+		break;
 
-    switch (key)
-    {
-        case (SDLK_ESCAPE): _running = false; break;
-        
-        case (SDLK_RIGHT):
-        {
-            if (_info.game_board.is_possible_movement(_pos_x + 1, _pos_y, _piece, _rotation))
-                ++_pos_x;
-            break;
-        }
+	case (SDLK_RIGHT):
+		if (_info.game_board.is_possible_movement(_pos_x + 1, _pos_y, _piece, _rotation))
+			++_pos_x;
+		break;
 
-        case (SDLK_LEFT):
-        {
-            if (_info.game_board.is_possible_movement(_pos_x - 1, _pos_y, _piece, _rotation))
-                --_pos_x;
-            break;
-        }
+	case (SDLK_LEFT):
+		if (_info.game_board.is_possible_movement(_pos_x - 1, _pos_y, _piece, _rotation))
+			--_pos_x;
+		break;
 
-        // Immediately move piece as far down as it goes and freeze it
-        case (SDLK_z):
-        case (SDLK_SPACE):
-        {
-            // Check collision from up to down
-            while (_info.game_board.is_possible_movement(_pos_x, _pos_y, _piece, _rotation))
-                ++_pos_y;
+	// Immediately move piece as far down as it goes and freeze it
+	case (SDLK_z):
+	case (SDLK_SPACE):
+		// Check collision from up to down
+		while (_info.game_board.is_possible_movement(_pos_x, _pos_y, _piece, _rotation))
+			++_pos_y;
 
-            _info.game_board.store_piece(_pos_x, _pos_y - 1, _piece, _rotation);
-            _info.game_board.delete_possible_lines(_info.dt);
+		_info.game_board.store_piece(_pos_x, _pos_y - 1, _piece, _rotation);
+		_info.game_board.delete_possible_lines(_info.dt);
 
-            if (_info.game_board.is_game_over())
-            {
-                draw_game_over();
-            }
+		if (_info.game_board.is_game_over())
+		{
+			draw_game_over();
+		}
 
-            new_piece();
-            
-            break;
-        }
+		new_piece();
 
-        // Rotate piece
-        case (SDLK_UP):
-        {
-            if (_info.game_board.is_possible_movement(_pos_x, _pos_y, _piece, (_rotation + 1) % 4))
-                _rotation = (_rotation + 1) % 4;
-            
-            break;
-        }
+		break;
 
-        // Speed up fall
-        case (SDLK_DOWN):
-        {
-            if (_info.game_board.is_possible_movement(_pos_x, _pos_y + 1, _piece, _rotation))
-                ++_pos_y;
-        
-            break;
-        }
+	// Rotate piece
+	case (SDLK_UP):
+		if (_info.game_board.is_possible_movement(_pos_x, _pos_y, _piece, (_rotation + 1) % 4))
+			_rotation = (_rotation + 1) % 4;
+		break;
 
-        case (SDLK_p):
-        {
-            _is_paused = !_is_paused;
-        }
-    }
+	// Speed up fall
+	case (SDLK_DOWN):
+		if (_info.game_board.is_possible_movement(_pos_x, _pos_y + 1, _piece, _rotation))
+			++_pos_y;
+		break;
+
+	case (SDLK_p):
+    case (SDLK_RETURN):
+		_is_paused = !_is_paused;
+		break;
+
+	default:
+		break;
+	}
 }
 
 void
 game::update()
 {
-    _info.dt = (SDL_GetTicks() - _info.ticks_last_frame) / 1000.f;
+    _info.dt = static_cast<float>(SDL_GetTicks() - _info.ticks_last_frame) / 1000.f;
     _info.dt = (_info.dt > 0.05f) ? 0.05f : _info.dt;
     _info.ticks_last_frame = SDL_GetTicks();
 
@@ -170,16 +161,14 @@ game::update()
     {
         _score = _info.game_board.lines_deleted();
 
-        if (_score != 0 && ((_score - (_score % 15)) / 15) > _level - 1)
+        if (_score != 0 && (_score - _score % 15) / 15 > _level - 1)
         {
             ++_level;
-            _wait_time -= static_cast<int>(_wait_time / 4.f);
+            _wait_time -= static_cast<int>(static_cast<float>(_wait_time) / 4.f);
         }
     }
 
-    uint32_t time2{ SDL_GetTicks() };
-
-    if ((time2 - _info.time1) > static_cast<uint32_t>(_wait_time) && !_is_paused)
+    if ((SDL_GetTicks() - _info.time1) > static_cast<uint32_t>(_wait_time) && !_is_paused)
     {
         if (_info.game_board.is_possible_movement(_pos_x, _pos_y + 1, _piece, _rotation))
             ++_pos_y;
@@ -269,7 +258,7 @@ game::draw_scene()
 
     if (_is_paused)
     {
-        rect_info info{ &_info.game_io, 0, 0, _info.game_io.get_screen_width(), _info.game_io.get_screen_height() };
+	    const rect_info info{ &_info.game_io, 0, 0, _info.game_io.get_screen_width(), _info.game_io.get_screen_height() };
 
         draw_pause_overlay(info);
     }
@@ -280,7 +269,7 @@ game::draw_game_over()
 {
     bool new_game{ false };
     
-    while (_running && !new_game)
+    while (_running)
     {
         draw_scene();
 
@@ -289,19 +278,44 @@ game::draw_game_over()
 
         _info.game_io.render();
 
-        int key{ _info.game_io.poll_key() };
-
-        switch (key)
+        switch (int key{ _info.game_io.poll_key() })
         {
-            case (SDLK_e):
-            case (SDLK_ESCAPE): _running = false; break;
+        case (SDLK_x):
+        case (SDLK_ESCAPE):
+	        _running = false;
+	        break;
 
-            case (SDLK_n): new_game = true; break;
+        case (SDLK_n):
+	        new_game = true;
+	        break;
+
+        default: break;
         }
 
         if (new_game)
         {
+            _pos_x = 0;
+            _pos_y = 0;
+            _piece = 0;
+            _rotation = 0;
+            _next_pos_x = 0;
+            _next_pos_y = 0;
+            _next_piece = 0;
+            _next_rotation = 0;
+            _level = 1;
+            _score = 0;
+            _screen_height = 0;
+            _wait_time = 700;
+            _is_paused = false;
+            _running = false;
+            _info.game_board = { &_info.game_pieces, _info.game_io.get_screen_height(), _info.game_io.get_screen_width() };
+            _info.time1 = SDL_GetTicks();
+            _info.ticks_last_frame = 0;
+            _info.dt = 0;
 
+            init_game();
+
+            return;
         }
     }
 }
@@ -313,8 +327,8 @@ game::draw_piece(int x, int y, int piece, int rotation)
     info.gfx = &_info.game_io;
     
     // Obtain the position in pixel in the screen of the block we want to draw
-    int pixels_x = _info.game_board.get_x_pos_in_pixels(x);
-    int pixels_y = _info.game_board.get_y_pos_in_pixels(y) - board_offset;
+    const int pixels_x = _info.game_board.get_x_pos_in_pixels(x);
+    const int pixels_y = _info.game_board.get_y_pos_in_pixels(y) - board_offset;
 
     // Travel the matrix of blocks of the piece and draw the blocks that are filled
     for (int i{ 0 }; i < static_cast<int>(piece_blocks); ++i)
@@ -340,8 +354,8 @@ game::draw_board()
 
     // Calculate the limits of the board in pixels
     int x1{ _info.game_board.get_board_position() - static_cast<int>(block_size * (board_width / 2)) - 1 };
-    int x2{ _info.game_board.get_board_position() + static_cast<int>(block_size * (board_width / 2)) };
-    int y{ _screen_height - static_cast<int>((block_size * board_height) + board_offset) };
+    const int x2{ _info.game_board.get_board_position() + static_cast<int>(block_size * (board_width / 2)) };
+    const int y{ _screen_height - static_cast<int>((block_size * board_height) + board_offset) };
 
     // Draw the vertical board boundaries
     for (int i{ 0 }; i <= static_cast<int>(block_size * board_height); i += block_size)
@@ -365,7 +379,7 @@ game::draw_board()
     {
         x_offset = i * static_cast<int>(block_size);
         info.left = (x1 - block_size) + x_offset + 1;
-        info.top = _screen_height - (int)block_size;
+        info.top = _screen_height - static_cast<int>(block_size);
         info.right = x1 + x_offset;
         info.bottom = _screen_height - 1;
 
