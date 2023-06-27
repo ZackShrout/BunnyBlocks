@@ -22,6 +22,7 @@ namespace
     sdl_texture     game_over_text_;
     sdl_texture     new_game_text_;
     sdl_texture     exit_text_;
+    sdl_texture     select_arrow_;
 } // anonymous
 
 void
@@ -139,6 +140,7 @@ io::init_graph()
     game_over_text_.font(heading_font_);
     new_game_text_.font(hud_font_);
     exit_text_.font(hud_font_);
+    select_arrow_.renderer(_renderer);
 
     SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
 
@@ -148,6 +150,14 @@ io::init_graph()
        !exit_text_.load_from_rendered_text("Exit", text_color))
     {
         std::cerr << "Failed to render text texture..." << std::endl;
+        return false;
+    }
+
+    select_arrow_.blend_mode(SDL_BLENDMODE_BLEND);
+
+    if (!select_arrow_.load_from_file("images/arrow.png"))
+    {
+        std::cerr << "Failed to render image texture..." << std::endl;
         return false;
     }
 
@@ -287,12 +297,13 @@ io::draw_pause()
 }
 
 void
-io::draw_game_over()
+io::draw_game_over(uint32_t arrow_pos)
 {
     int x{ static_cast<int>(_width / 2.f) - static_cast<int>(game_over_text_.width() / 2.f) };
     int game_over_y{ static_cast<int>(_height / 3.f) - static_cast<int>(game_over_text_.height() / 3.f) };
     int new_game_y{ game_over_y + game_over_text_.height() + 10 };
     int exit_y{ new_game_y + new_game_text_.height() + 10 };
+    int arrow_offset_y{ static_cast<int>((new_game_text_.height() - select_arrow_.height()) / 2.f) };
 
     draw_rectangle(x - 30, game_over_y - 20,
                    x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
@@ -301,6 +312,20 @@ io::draw_game_over()
                    x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
                    white, false);
     game_over_text_.render(x, game_over_y);
+
+    switch (arrow_pos)
+    {
+        case 0:
+            select_arrow_.render(x + 30, new_game_y + arrow_offset_y);
+            break;
+
+        case 1:
+            select_arrow_.render(x + 30, exit_y + arrow_offset_y);
+            break;
+            
+        default:
+            break;
+    }
 
     x = static_cast<int>(_width / 2.f) - static_cast<int>(new_game_text_.width() / 2.f);
     new_game_text_.render(x, new_game_y);

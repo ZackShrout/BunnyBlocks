@@ -59,7 +59,7 @@ public:
     void render();
     void draw_hud(int points, int level);
     void draw_pause();
-    void draw_game_over();
+    void draw_game_over(uint32_t arrow_pos);
 
 private:
     SDL_Window*     _window{};

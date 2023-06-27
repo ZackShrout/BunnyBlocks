@@ -16,6 +16,12 @@ namespace
         int     bottom;
     };
 
+    constexpr int       board_offset{ static_cast<int>(block_size) };
+    std::vector<int>    pieces_{ 0, 1, 2, 3, 4, 5, 6 };
+    std::vector<int>    next_pieces_{ 0, 1, 2, 3, 4, 5, 6 };
+    int                 piece_index_{ 0 };
+    uint32_t            menu_selection_{ 0 };
+
     void
     draw_piece_block(const rect_info& info, int piece)
     {
@@ -70,7 +76,7 @@ namespace
     draw_game_over_overlay(const rect_info& screen)
     {
         darken_screen(screen);
-        screen.gfx->draw_game_over();
+        screen.gfx->draw_game_over(menu_selection_);
     }
 
     void
@@ -79,11 +85,6 @@ namespace
 	    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
         std::shuffle(bag.begin(), bag.end(), std::default_random_engine(seed));
     }
-
-    constexpr int       board_offset{ static_cast<int>(block_size) };
-    std::vector<int>    pieces_{ 0, 1, 2, 3, 4, 5, 6 };
-    std::vector<int>    next_pieces_{ 0, 1, 2, 3, 4, 5, 6 };
-    int                 piece_index_{ 0 };
 } // anonymous
 
 void
@@ -288,6 +289,19 @@ game::draw_game_over()
         case (SDLK_n):
 	        new_game = true;
 	        break;
+
+        case (SDLK_UP):
+            menu_selection_ = menu_selection_ == 0 ? 1 : 0;
+            break;
+
+        case (SDLK_DOWN):
+            menu_selection_ = menu_selection_ == 0 ? 1 : 0;
+            break;
+        
+        case (SDLK_SPACE):
+        case (SDLK_RETURN):
+            menu_selection_ == 0 ? new_game = true : _running = false;
+            break; 
 
         default: break;
         }
