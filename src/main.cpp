@@ -1,6 +1,6 @@
 #include "game.h"
 
-int main(int argv, char** args)
+int main()
 {
     bblocks::game game;
 

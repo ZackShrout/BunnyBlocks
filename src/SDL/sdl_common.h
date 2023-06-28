@@ -15,7 +15,4 @@
 
 #endif
 
-#include <cmath>
-#include <stdint.h>
-
 #include "../common.h"

@@ -4,8 +4,8 @@ namespace bblocks::piece
 {
     namespace
     {
-        // NOTE: layout is pieces[kind][rotation][horizontal blocks][vertical blocks]
-        char pieces [7][4][5][5]
+        // NOTE: layout is pieces_[kind][rotation][horizontal blocks][vertical blocks]
+        char pieces_ [7][4][5][5]
         {
             // Square
             {
@@ -170,8 +170,8 @@ namespace bblocks::piece
             }
         };
 
-        // NOTE: layout is pieces_initial_position[kind][rotation][position]
-        int32_t pieces_initial_position[7][4][2]
+        // NOTE: layout is pieces_initial_position_[kind][rotation][position]
+        int32_t pieces_initial_position_[7][4][2]
         {
             // Square
             {{-2, -3},
@@ -212,20 +212,20 @@ namespace bblocks::piece
     } // anonymous namespace    
 
     uint32_t
-    get_block_type (uint32_t piece, uint32_t rotation, uint32_t x, uint32_t y)
+    get_block_type (const uint32_t piece, const uint32_t rotation, const int32_t x, const int32_t y)
     { 
-        return pieces[piece][rotation][x][y];
+        return pieces_[piece][rotation][x][y];
     }
 
     int32_t
-    get_x_initial_position (uint32_t piece, uint32_t rotation)
+    get_x_initial_position (const uint32_t piece, const uint32_t rotation)
     { 
-        return pieces_initial_position[piece][rotation][0]; 
+        return pieces_initial_position_[piece][rotation][0]; 
     }
 
     int32_t
-    get_y_initial_position (uint32_t piece, uint32_t rotation)
+    get_y_initial_position (const uint32_t piece, const uint32_t rotation)
     { 
-        return pieces_initial_position[piece][rotation][1];
+        return pieces_initial_position_[piece][rotation][1];
     }
 }

@@ -10,7 +10,7 @@ namespace bblocks::piece
     /// @param x Horizontal position in block
     /// @param y Vertical position in block
     /// @return 0 if no block, 1 if normal block, 2 if rotation block
-    uint32_t get_block_type (uint32_t piece, uint32_t rotation, uint32_t x, uint32_t y);
+    uint32_t get_block_type (uint32_t piece, uint32_t rotation, int32_t x, int32_t y);
     /// @brief Returns the horizontal displacement of the piece that has to be applied in order to create it in the correct position.
     /// @param piece Piece to draw
     /// @param rotation Specify which of th 4 possible rotations

@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstdint>
 #include <assert.h>
+#include <cmath>
+#include <cstdint>
 
 #ifndef DISABLE_COPY
 #define DISABLE_COPY(T)					\

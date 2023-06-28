@@ -9,8 +9,7 @@ sdl_texture::load_from_file(const char *path)
 
 	SDL_Texture* new_texture{ nullptr };
 
-	SDL_Surface* loaded_surface{ IMG_Load(path) };
-	if(!loaded_surface)
+	if(SDL_Surface* loaded_surface{ IMG_Load(path) }; !loaded_surface)
         std::cerr << "Unable to load image " << path << "! SDL_image Error... " << IMG_GetError() << std::endl;
 	else
 	{
@@ -73,17 +72,17 @@ sdl_texture::free()
 }
 
 void
-sdl_texture::render(int x, int y, SDL_Rect* clip/* = nullptr*/, double angle/* = 0.0*/,
-                    SDL_Point* center/* = nullptr*/, SDL_RendererFlip flip/* = SDL_FLIP_NONE*/)
+sdl_texture::render(const int x, const int y, const SDL_Rect* clip/* = nullptr*/, const double angle/* = 0.0*/,
+                    const SDL_Point* center/* = nullptr*/, const SDL_RendererFlip flip/* = SDL_FLIP_NONE*/) const
 {
 	SDL_Rect render_quad{ x, y, _width, _height };
 
-	if(clip)
+	if (clip)
 	{
 		render_quad.w = clip->w;
 		render_quad.h = clip->h;
 	}
 
 	if (_renderer)
-        SDL_RenderCopyEx( _renderer, _texture, clip, &render_quad, angle, center, flip );
+		SDL_RenderCopyEx(_renderer, _texture, clip, &render_quad, angle, center, flip);
 }

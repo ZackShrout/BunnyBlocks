@@ -69,11 +69,13 @@
     <ClCompile Include="src\board.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\pieces.cpp" />
     <ClCompile Include="src\sdl\io.cpp" />
     <ClCompile Include="src\sdl\sdl_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board.h" />
+    <ClInclude Include="src\common.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\pieces.h" />
     <ClInclude Include="src\sdl\io.h" />
@@ -87,6 +89,9 @@
   </ItemGroup>
   <ItemGroup>
     <Font Include="fonts\Monoisome-Regular.ttf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\arrow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

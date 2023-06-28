@@ -43,7 +43,7 @@ class io
 public:
     io() { init_graph(); }
     ~io() { shutdown(); }
-    DISABLE_COPY_AND_MOVE(io);
+    DISABLE_COPY_AND_MOVE(io)
     void draw_rectangle(int x1, int y1, int x2, int y2, color c, bool filled = true);
     void clear_screen();
     [[nodiscard]] int get_screen_height() const { return _height; }
