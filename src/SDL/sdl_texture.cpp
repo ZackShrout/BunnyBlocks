@@ -32,14 +32,13 @@ sdl_texture::load_from_file(const char *path)
 }
 
 bool
-sdl_texture::load_from_rendered_text(const char *texture_text, SDL_Color text_color)
+sdl_texture::load_from_rendered_text(const char *texture_text, const SDL_Color text_color)
 {
     free();
 
     SDL_Texture* new_texture{ nullptr };
 
-    SDL_Surface* text_surface = TTF_RenderText_Solid(_font, texture_text, text_color);
-    if(!text_surface)
+    if(SDL_Surface* text_surface = TTF_RenderText_Solid(_font, texture_text, text_color); !text_surface)
         std::cerr << "Unable to render text surface! SDL_ttf Error... " << TTF_GetError() << std::endl;
     else
     {
