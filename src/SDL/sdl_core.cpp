@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+
 #include "sdl_texture.h"
 
 namespace bblocks::sdl::core
@@ -72,8 +73,6 @@ namespace bblocks::sdl::core
     init()
     {
         SDL_DisplayMode display_mode;
-	    u8              video_bpp;
-	    u32             video_flags;
 
 	    // Initialize SDL
 	    if (SDL_Init(SDL_INIT_EVERYTHING) != 0 )
@@ -82,8 +81,6 @@ namespace bblocks::sdl::core
 	    	return false;
 	    }
 
-	    atexit(SDL_Quit); // TODO: get rid of this jank... this should just be called from shutdown() when game closes
-
         SDL_GetCurrentDisplayMode(0, &display_mode);
         max_display_width_ = display_mode.w;
         max_display_height_ = display_mode.h;
@@ -91,12 +88,12 @@ namespace bblocks::sdl::core
         display_height_ = (max_display_height_ >= desired_screen_h ? desired_screen_h : max_display_height_);
 
         window_ = SDL_CreateWindow(
-            "Bunny Blocks",
-            SDL_WINDOWPOS_CENTERED,
-            SDL_WINDOWPOS_CENTERED,
-            display_width_,
-            display_height_,
-            SDL_WINDOW_SHOWN);
+	        "Bunny Blocks",
+	        SDL_WINDOWPOS_CENTERED,
+	        SDL_WINDOWPOS_CENTERED,
+	        static_cast<int>(display_width_),
+	        static_cast<int>(display_height_),
+	        SDL_WINDOW_SHOWN);
 
         if (!window_)
         {
@@ -113,8 +110,7 @@ namespace bblocks::sdl::core
 
         SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
 
-        u32 img_flags = IMG_INIT_PNG;
-        if(!(IMG_Init(img_flags) & img_flags))
+        if(constexpr u32 img_flags = IMG_INIT_PNG; !(IMG_Init(img_flags) & img_flags))
         {
             std::cerr << "SDL_image could not initialize! SDL_image Error... " << IMG_GetError() << std::endl;
             return false;
@@ -156,9 +152,7 @@ namespace bblocks::sdl::core
         exit_text_.font(hud_font_);
         select_arrow_.renderer(renderer_);
 
-        SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
-
-        if(!paused_text_.load_from_rendered_text("Paused", text_color) ||
+        if(constexpr SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff }; !paused_text_.load_from_rendered_text("Paused", text_color) ||
            !game_over_text_.load_from_rendered_text("Game Over...", text_color) ||
            !new_game_text_.load_from_rendered_text("New Game", text_color) ||
            !exit_text_.load_from_rendered_text("Exit", text_color))
@@ -198,18 +192,18 @@ namespace bblocks::sdl::core
     }
 
     void
-    draw_rectangle(u32 x1, u32 y1, u32 x2, u32 y2, color c, bool filled/* = true*/)
+    draw_rectangle(const u32 x1, const u32 y1, const u32 x2, const u32 y2, const color c, const bool filled/* = true*/)
     {
         SDL_Rect rect;
-        rect.x = x1;
-        rect.y = y1;
-        rect.w = x2 - x1;
-        rect.h = y2 - y1;
+        rect.x = static_cast<int>(x1);
+        rect.y = static_cast<int>(y1);
+        rect.w = static_cast<int>(x2 - x1);
+        rect.h = static_cast<int>(y2 - y1);
 
-        u8 r = (colors_[c] >> 24) & 0xff;
-        u8 g = (colors_[c] >> 16) & 0xff;
-        u8 b = (colors_[c] >> 8) & 0xff;
-        u8 a = colors_[c] & 0xff;
+        const u8 r = (colors_[c] >> 24) & 0xff;
+        const u8 g = (colors_[c] >> 16) & 0xff;
+        const u8 b = (colors_[c] >> 8) & 0xff;
+        const u8 a = colors_[c] & 0xff;
 
         SDL_SetRenderDrawColor(renderer_, r, g, b, a);
 
@@ -251,7 +245,8 @@ namespace bblocks::sdl::core
 	    			return event.key.keysym.sym;
 	    		case SDL_QUIT:
 	    			exit(3);
-	    	}
+                default: break;
+            }
 	    }
 	    return -1;
     }
@@ -268,13 +263,13 @@ namespace bblocks::sdl::core
 	    	  break;
           if (event.type == SDL_QUIT)
 	    	  exit(3);
-	    };
+	    }
 
-	    return event.key.keysym.sym;
+        return event.key.keysym.sym;
     }
 
     u8
-    is_key_down(u32 key)
+    is_key_down(const u32 key)
     {
         s32 num_keys;
 
@@ -291,15 +286,14 @@ namespace bblocks::sdl::core
     }
 
     void
-    draw_hud(u32 points, u32 level)
+    draw_hud(const u32 points, const u32 level)
     {
-        if (current_points_ == -1 || current_points_ != (s32)points)
+        if (current_points_ == -1 || current_points_ != static_cast<s32>(points))
         {
-            SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
+	        constexpr SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
             std::string label{ std::to_string(points) };
-            u32 digits{ static_cast<u32>(label.size()) };
-    
-            if (digits != 9)
+
+	        if (const u32 digits{ static_cast<u32>(label.size()) }; digits != 9)
             {
                 std::string prepend{ "0" };
                 
@@ -318,12 +312,12 @@ namespace bblocks::sdl::core
                 return;
             }
     
-            current_points_ = points;
+            current_points_ = static_cast<s32>(points);
         }
     
-        if (current_level_ == -1 || current_level_ != (s32)level)
-        {   
-            SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
+        if (current_level_ == -1 || current_level_ != static_cast<s32>(level))
+        {
+	        constexpr SDL_Color text_color = { 0xff, 0xff, 0xff, 0xff };
             std::string label{ "Level: "};
             label = label + std::to_string(level);
     
@@ -333,7 +327,7 @@ namespace bblocks::sdl::core
                 return;
             }
     
-            current_level_ = level;
+            current_level_ = static_cast<s32>(level);
         }
     
         level_text_.render(60, 100);
@@ -343,48 +337,51 @@ namespace bblocks::sdl::core
     void
     draw_pause()
     {
-        u32 x{ static_cast<u32>(display_width_ / 2.f) - static_cast<u32>(paused_text_.width() / 2.f) };
-        u32 y{ static_cast<u32>(display_height_ / 2.f) - static_cast<u32>(paused_text_.height() / 2.f) };
+	    const u32 x{ display_width_ / 2 - paused_text_.width() / 2 };
+	    const u32 y{ display_height_ / 2 - paused_text_.height() / 2 };
 
         draw_rectangle(x - 30, y - 20, x + paused_text_.width() + 30, y + paused_text_.height() + 20, white, false);
         paused_text_.render(x, y);
     }
 
     void
-    game_over(u32 arrow_pos)
+    game_over(const u32 arrow_pos)
     {
-        u32 x{ static_cast<u32>(display_width_ / 2.f) - static_cast<u32>(game_over_text_.width() / 2.f) };
-        u32 game_over_y{ static_cast<u32>(display_height_ / 3.f) - static_cast<u32>(game_over_text_.height() / 3.f) };
-        u32 new_game_y{ game_over_y + game_over_text_.height() + 10 };
-        u32 exit_y{ new_game_y + new_game_text_.height() + 10 };
-        u32 arrow_offset_y{ static_cast<u32>((new_game_text_.height() - select_arrow_.height()) / 2.f) };
+	    u32 x{ display_width_ / 2 - game_over_text_.width() / 2 };
+	    const u32 game_over_y{
+		    static_cast<u32>(static_cast<f32>(display_height_) / 3.f) - static_cast<u32>(static_cast<f32>(
+			    game_over_text_.height()) / 3.f)
+	    };
+	    const u32 new_game_y{ game_over_y + game_over_text_.height() + 10 };
+	    const u32 exit_y{ new_game_y + new_game_text_.height() + 10 };
+	    const u32 arrow_offset_y{ ((new_game_text_.height() - select_arrow_.height()) / 2) };
 
-        draw_rectangle(x - 30, game_over_y - 20,
-                       x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
-                       black);
-        draw_rectangle(x - 30, game_over_y - 20,
-                       x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
-                       white, false);
-        game_over_text_.render(x, game_over_y);
+	    draw_rectangle(x - 30, game_over_y - 20,
+	                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+	                   black);
+	    draw_rectangle(x - 30, game_over_y - 20,
+	                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+	                   white, false);
+	    game_over_text_.render(x, game_over_y);
 
-        switch (arrow_pos)
-        {
-            case 0:
-                select_arrow_.render(x + 30, new_game_y + arrow_offset_y);
-                break;
+	    switch (arrow_pos)
+	    {
+	    case 0:
+		    select_arrow_.render(x + 30, new_game_y + arrow_offset_y);
+		    break;
 
-            case 1:
-                select_arrow_.render(x + 30, exit_y + arrow_offset_y);
-                break;
+	    case 1:
+		    select_arrow_.render(x + 30, exit_y + arrow_offset_y);
+		    break;
 
-            default:
-                break;
-        }
+	    default:
+		    break;
+	    }
 
-        x = static_cast<u32>(display_width_ / 2.f) - static_cast<u32>(new_game_text_.width() / 2.f);
-        new_game_text_.render(x, new_game_y);
+	    x = display_width_ / 2 - new_game_text_.width() / 2;
+	    new_game_text_.render(x, new_game_y);
 
-        x = static_cast<u32>(display_width_ / 2.f) - static_cast<u32>(exit_text_.width() / 2.f);
-        exit_text_.render(x, exit_y);
+	    x = display_width_ / 2 - exit_text_.width() / 2;
+	    exit_text_.render(x, exit_y);
     }
 }

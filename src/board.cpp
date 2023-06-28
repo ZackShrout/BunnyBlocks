@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <vector>
+
 #include "pieces.h"
 
 namespace bblocks::board

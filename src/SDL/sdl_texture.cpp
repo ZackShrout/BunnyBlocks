@@ -71,10 +71,10 @@ sdl_texture::free()
 }
 
 void
-sdl_texture::render(const int x, const int y, const SDL_Rect* clip/* = nullptr*/, const double angle/* = 0.0*/,
+sdl_texture::render(const u32 x, const u32 y, const SDL_Rect* clip/* = nullptr*/, const double angle/* = 0.0*/,
                     const SDL_Point* center/* = nullptr*/, const SDL_RendererFlip flip/* = SDL_FLIP_NONE*/) const
 {
-	SDL_Rect render_quad{ x, y, _width, _height };
+	SDL_Rect render_quad{ static_cast<int>(x), static_cast<int>(y), static_cast<int>(_width), static_cast<int>(_height) };
 
 	if (clip)
 	{

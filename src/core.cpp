@@ -4,8 +4,9 @@
 #include <chrono>
 #include <random>
 #include <vector>
-#include <iostream>
+
 #include "board.h"
+#include "common.h"
 #include "pieces.h"
 #include "SDL/sdl_core.h"
 
@@ -99,12 +100,12 @@ namespace bblocks::core
         void
         shuffle_pieces_bag(std::vector<u32>& bag)
         {
-    	    const unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-            std::shuffle(bag.begin(), bag.end(), std::default_random_engine(seed));
+    	    const u64 seed = std::chrono::system_clock::now().time_since_epoch().count();
+            std::shuffle(bag.begin(), bag.end(), std::default_random_engine(static_cast<u32>(seed)));
         }
 
         u32
-        get_rand(u32 a, u32 b)
+        get_rand(const u32 a, const u32 b)
         { 
             return rand() % (b - a + 1) + a;
         }
@@ -137,7 +138,7 @@ namespace bblocks::core
         }
 
 	    void
-        draw_piece(s32 x, s32 y, u32 piece, u32 rotation)
+        draw_piece(const s32 x, const s32 y, const u32 piece, const u32 rotation)
         {
             rect_info info{};
 
@@ -149,7 +150,7 @@ namespace bblocks::core
             for (u32 i{ 0 }; i < board::get_piece_blocks(); ++i)
                 for (u32 j{ 0 }; j < board::get_piece_blocks(); ++j)
                 {
-                    if (piece::get_block_type(piece, rotation, (s32)j, (s32)i) != 0)
+                    if (piece::get_block_type(piece, rotation, static_cast<s32>(j), static_cast<s32>(i)) != 0)
                     {
                         info.left = pixels_x + i * board::get_block_size();
                         info.top = pixels_y + j * board::get_block_size();
@@ -188,10 +189,9 @@ namespace bblocks::core
             }
     
             // Draw the horizontal board boundaries
-            u32 x_offset{ 0 };
             for (u32 i{ 1 }; i <= board::get_board_width(); ++i)
             {
-                x_offset = i * board::get_block_size();
+                const u32 x_offset{ i * board::get_block_size() };
                 info.left = (x1 - board::get_block_size()) + x_offset + 1;
                 info.top = sdl::core::display_height() - board::get_block_size();
                 info.right = x1 + x_offset;
@@ -249,7 +249,7 @@ namespace bblocks::core
 
                 sdl::core::render();
 
-                switch (int key{ sdl::core::poll_key() })
+                switch (sdl::core::poll_key())
                 {
                 case (SDLK_x):
                 case (SDLK_ESCAPE):
@@ -261,9 +261,6 @@ namespace bblocks::core
     	            break;
 
                 case (SDLK_UP):
-                    menu_selection_ = menu_selection_ == 0 ? 1 : 0;
-                    break;
-
                 case (SDLK_DOWN):
                     menu_selection_ = menu_selection_ == 0 ? 1 : 0;
                     break;
@@ -317,12 +314,12 @@ namespace bblocks::core
         shuffle_pieces_bag(pieces_);
         current_piece_ = pieces_.at(0);
         current_rotation_ = get_rand(0, 3);
-        current_pos_x_ = (board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
+        current_pos_x_ = static_cast<s32>(board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
         current_pos_y_ = piece::get_y_initial_position(current_piece_, current_rotation_);
 
         next_piece_ = pieces_.at(1);
         next_rotation_ = get_rand(0, 3);
-        next_pos_x_ = board::get_board_width() + 3;
+        next_pos_x_ = static_cast<s32>(board::get_board_width()) + 3;
         next_pos_y_ = 5;
 
         running_ = true;
@@ -339,7 +336,7 @@ namespace bblocks::core
     void
     process_input()
     {
-        switch (int key{ sdl::core::poll_key() })
+        switch (sdl::core::poll_key())
     	{
     	case (SDLK_ESCAPE):
             running_ = false;
