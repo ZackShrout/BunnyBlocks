@@ -67,20 +67,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\board.cpp" />
-    <ClCompile Include="src\game.cpp" />
+    <ClCompile Include="src\core.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pieces.cpp" />
-    <ClCompile Include="src\sdl\io.cpp" />
+    <ClCompile Include="src\SDL\sdl_core.cpp" />
     <ClCompile Include="src\sdl\sdl_texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\board.h" />
     <ClInclude Include="src\common.h" />
-    <ClInclude Include="src\game.h" />
+    <ClInclude Include="src\core.h" />
     <ClInclude Include="src\pieces.h" />
-    <ClInclude Include="src\sdl\io.h" />
     <ClInclude Include="src\sdl\sdl_common.h" />
+    <ClInclude Include="src\SDL\sdl_core.h" />
     <ClInclude Include="src\sdl\sdl_texture.h" />
+    <ClInclude Include="src\types.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
