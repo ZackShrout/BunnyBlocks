@@ -2,7 +2,7 @@
 
 #include <assert.h>
 #include <cmath>
-#include <cstdint>
+#include "types.h"
 
 #ifndef DISABLE_COPY
 #define DISABLE_COPY(T)					\

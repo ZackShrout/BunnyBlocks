@@ -13,7 +13,7 @@ namespace bblocks
     {
         struct rect_info
         {
-            io*     gfx;
+            //io*     gfx;
             int     left;
             int     top;
             int     right;
@@ -23,7 +23,7 @@ namespace bblocks
         std::vector<int>    pieces_{ 0, 1, 2, 3, 4, 5, 6 };
         std::vector<int>    next_pieces_{ 0, 1, 2, 3, 4, 5, 6 };
         int                 piece_index_{ 0 };
-        uint32_t            menu_selection_{ 0 };
+        u32                 menu_selection_{ 0 };
 
         void
         draw_piece_block(const rect_info& info, int piece)
@@ -44,42 +44,42 @@ namespace bblocks
             }
 
             // Draw highlight color
-            info.gfx->draw_rectangle(info.left, info.top, info.right, info.bottom, h);
+            sdl::core::draw_rectangle(info.left, info.top, info.right, info.bottom, h);
             // Draw shadow color
-            info.gfx->draw_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, s);
+            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, s);
             // Draw regular color
-            info.gfx->draw_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, c);
+            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, c);
         }
 
         void
         draw_board_block(const rect_info& info)
         {
             // Draw highlight color
-            info.gfx->draw_rectangle(info.left, info.top, info.right, info.bottom, light_brick);
+            sdl::core::draw_rectangle(info.left, info.top, info.right, info.bottom, light_brick);
             // Draw shadow color
-            info.gfx->draw_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, dark_brick);
+            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, dark_brick);
             // Draw regular color
-            info.gfx->draw_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, brick);
+            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, brick);
         }
 
         void
         darken_screen(const rect_info& screen)
         {
-            screen.gfx->draw_rectangle(screen.left, screen.top, screen.right, screen.bottom, fade);
+            sdl::core::draw_rectangle(screen.left, screen.top, screen.right, screen.bottom, fade);
         }
 
         void
         draw_pause_overlay(const rect_info& screen)
         {
             darken_screen(screen);
-            screen.gfx->draw_pause();
+            sdl::core::draw_pause();
         }
 
         void
         draw_game_over_overlay(const rect_info& screen)
         {
             darken_screen(screen);
-            screen.gfx->draw_game_over(menu_selection_);
+            sdl::core::game_over(menu_selection_);
         }
 
         void
@@ -93,7 +93,7 @@ namespace bblocks
     void
     game::process_input()
     {
-    	switch (int key{ _info.game_io.poll_key() })
+    	switch (int key{ sdl::core::poll_key() })
     	{
     	case (SDLK_ESCAPE):
             _running = false;
@@ -153,13 +153,13 @@ namespace bblocks
     void
     game::update()
     {
-        _info.dt = static_cast<float>(SDL_GetTicks() - _info.ticks_last_frame) / 1000.f;
+        _info.dt = static_cast<f32>(SDL_GetTicks() - _info.ticks_last_frame) / 1000.f;
         _info.dt = (_info.dt > 0.05f) ? 0.05f : _info.dt;
         _info.ticks_last_frame = SDL_GetTicks();
 
         board::delete_possible_lines(_info.dt);
 
-        _info.game_io.clear_screen();
+        sdl::core::clear_screen();
 
         if (_score != board::lines_deleted())
         {
@@ -168,11 +168,11 @@ namespace bblocks
             if (_score != 0 && (_score - _score % 15) / 15 > _level - 1)
             {
                 ++_level;
-                _wait_time -= static_cast<int>(static_cast<float>(_wait_time) / 4.f);
+                _wait_time -= static_cast<int>(static_cast<f32>(_wait_time) / 4.f);
             }
         }
 
-        if ((SDL_GetTicks() - _info.time1) > static_cast<uint32_t>(_wait_time) && !_is_paused)
+        if ((SDL_GetTicks() - _info.time1) > static_cast<u32>(_wait_time) && !_is_paused)
         {
             if (board::is_possible_movement(_pos_x, _pos_y + 1, _piece, _rotation))
                 ++_pos_y;
@@ -200,7 +200,7 @@ namespace bblocks
     void
     game::render()
     {
-        _info.game_io.render();
+        sdl::core::render();
     }
 
     // PRIVATE
@@ -235,9 +235,10 @@ namespace bblocks
     void
     game::init_game()
     {
-        _screen_height = _info.game_io.get_screen_height();
+        sdl::core::init();
+        _screen_height = sdl::core::display_height();
 
-        board::init(_info.game_io.get_screen_width(), _screen_height);
+        board::init(sdl::core::display_width(), _screen_height);
 
         shuffle_pieces_bag(pieces_);
         _piece = pieces_.at(0);
@@ -256,7 +257,7 @@ namespace bblocks
     void
     game::draw_scene()
     {
-        _info.game_io.clear_screen();
+        sdl::core::clear_screen();
 
         draw_board();
         draw_piece(_pos_x, _pos_y, _piece, _rotation);
@@ -264,7 +265,7 @@ namespace bblocks
 
         if (_is_paused)
         {
-    	    const rect_info info{ &_info.game_io, 0, 0, _info.game_io.get_screen_width(), _info.game_io.get_screen_height() };
+    	    const rect_info info{ 0, 0, sdl::core::display_width(), sdl::core::display_height() };
 
             draw_pause_overlay(info);
         }
@@ -279,12 +280,12 @@ namespace bblocks
         {
             draw_scene();
 
-            rect_info info{ &_info.game_io, 0, 0, _info.game_io.get_screen_width(), _info.game_io.get_screen_height() };
+            rect_info info{ 0, 0, sdl::core::display_width(), sdl::core::display_height() };
             draw_game_over_overlay(info);
 
-            _info.game_io.render();
+            sdl::core::render();
 
-            switch (int key{ _info.game_io.poll_key() })
+            switch (int key{ sdl::core::poll_key() })
             {
             case (SDLK_x):
             case (SDLK_ESCAPE):
@@ -327,7 +328,7 @@ namespace bblocks
                 _wait_time = 700;
                 _is_paused = false;
                 _running = false;
-                board::init(_info.game_io.get_screen_height(), _info.game_io.get_screen_width());
+                board::init(sdl::core::display_height(), sdl::core::display_width());
                 _info.time1 = SDL_GetTicks();
                 _info.ticks_last_frame = 0;
                 _info.dt = 0;
@@ -343,7 +344,6 @@ namespace bblocks
     game::draw_piece(int x, int y, int piece, int rotation)
     {
         rect_info info{};
-        info.gfx = &_info.game_io;
 
         // Obtain the position in pixel in the screen of the block we want to draw
         const int pixels_x = board::get_x_pos_in_pixels(x);
@@ -369,7 +369,6 @@ namespace bblocks
     game::draw_board()
     {
         rect_info info{};
-        info.gfx = &_info.game_io;
 
         // Calculate the limits of the board in pixels
         int x1{ static_cast<int>(board::get_board_position()) - static_cast<int>(board::get_block_size() * (board::get_board_width() / 2)) - 1 };
@@ -420,6 +419,6 @@ namespace bblocks
                     draw_piece_block(info, board::get_piece_type(i, j));
                 }
 
-        _info.game_io.draw_hud(_score, _level);
+        sdl::core::draw_hud(_score, _level);
     }
 }

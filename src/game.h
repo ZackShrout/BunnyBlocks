@@ -1,21 +1,22 @@
 #pragma once
 
-#include "SDL/io.h"
+#include "common.h"
+#include "SDL/sdl_core.h"
 
 namespace bblocks
 {
     struct game_info
     {
-        io              game_io;
-        uint32_t        time1{ SDL_GetTicks() };
-        uint32_t        ticks_last_frame;
-        float           dt{ 0 };
+        u32 time1{ SDL_GetTicks() };
+        u32 ticks_last_frame;
+        f32 dt{ 0 };
     };
 
     class game
     {
     public:
 	    game() { init_game(); }
+        ~game() { sdl::core::shutdown(); }
 	    void process_input();
 	    /// @brief Update the game
 	    void update();
@@ -52,8 +53,8 @@ namespace bblocks
         int         _next_pos_y{ 0 };
         int         _next_piece{ 0 };
         int         _next_rotation{ 0 };
-        int         _level{ 1 };
-        int         _score{ 0 };
+        u32         _level{ 1 };
+        u32         _score{ 0 };
         int         _screen_height{ 0 };
         int         _wait_time{ 700 };
         bool        _is_paused{ false };
