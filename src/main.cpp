@@ -1,17 +1,19 @@
-#include "game.h"
+#include "core.h"
 
 int main()
 {
-    bblocks::game game;
+    using namespace bblocks;
 
-    while (game.is_running())
+    core::init();
+
+    while (core::is_running())
     {
-        game.process_input();
-        game.update();
-        game.render();
+        core::process_input();
+        core::update();
+        core::render();
     }
-
-    // TODO: would like a cleanup function here
+    
+    core::shutdown();
 
     return 0;
 }
