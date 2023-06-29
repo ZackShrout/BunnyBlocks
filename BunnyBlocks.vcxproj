@@ -43,24 +43,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>c:\dev\SDL2-2.28.0\include;c:\dev\SDL2_image-2.6.3\include;c:\dev\SDL2_ttf-2.20.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>c:\dev\SDL2-2.28.0\include;c:\dev\SDL2_image-2.6.3\include;c:\dev\SDL2_ttf-2.20.2\include;c:\dev\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>c:\dev\SDL2_image-2.6.3\lib\x64;c:\dev\SDL2-2.28.0\lib\x64;c:\dev\SDL2_ttf-2.20.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\dev\SDL2_image-2.6.3\lib\x64;c:\dev\SDL2-2.28.0\lib\x64;c:\dev\SDL2_ttf-2.20.2\lib\x64;c:\dev\SDL2_mixer-2.6.3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>c:\dev\SDL2-2.28.0\include;c:\dev\SDL2_image-2.6.3\include;c:\dev\SDL2_ttf-2.20.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>c:\dev\SDL2-2.28.0\include;c:\dev\SDL2_image-2.6.3\include;c:\dev\SDL2_ttf-2.20.2\include;c:\dev\SDL2_mixer-2.6.3\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>c:\dev\SDL2_image-2.6.3\lib\x64;c:\dev\SDL2-2.28.0\lib\x64;c:\dev\SDL2_ttf-2.20.2\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;SDL2_image.lib;SDL2_ttf.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>c:\dev\SDL2_image-2.6.3\lib\x64;c:\dev\SDL2-2.28.0\lib\x64;c:\dev\SDL2_ttf-2.20.2\lib\x64;c:\dev\SDL2_mixer-2.6.3\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -70,6 +70,7 @@
     <ClCompile Include="src\core.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\pieces.cpp" />
+    <ClCompile Include="src\SDL\sdl_audio.cpp" />
     <ClCompile Include="src\SDL\sdl_core.cpp" />
     <ClCompile Include="src\sdl\sdl_texture.cpp" />
   </ItemGroup>
@@ -78,6 +79,7 @@
     <ClInclude Include="src\common.h" />
     <ClInclude Include="src\core.h" />
     <ClInclude Include="src\pieces.h" />
+    <ClInclude Include="src\SDL\sdl_audio.h" />
     <ClInclude Include="src\sdl\sdl_common.h" />
     <ClInclude Include="src\SDL\sdl_core.h" />
     <ClInclude Include="src\sdl\sdl_texture.h" />

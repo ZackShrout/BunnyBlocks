@@ -12,9 +12,10 @@ For MacOS users, use:
 For Windows user (assuming Visual Studio):
  - Download SDL2 headers and binaries (SDL2-devel-x.y.z-VC.zip) from https://github.com/libsdl-org/SDL/releases
  - Download SDL2 image extension (SDL2_image-devel-x.y.z-VC.zip) from https://github.com/libsdl-org/SDL_image/releases
- - Download SDL2 TTF extension (SDL2_ttf-devel-x.y.x-VC.zip) from https://github.com/libsdl-org/SDL_ttf/releases
- - Make sure to put the "include" folder for each of the three downloaded folders in additional includes
- - Make sure to put the "lib\x64" folder for each of the three downloaded folders in Additional Library Directories
- - Make sure to put SDL2.lib, SDL2main.lib, SDL_image.lib, and SDL_ttf.lib in Additional Dependencies
- - Make sure to set environment variable path to "lib/x64" for each of the three downloaded folders
+ - Download SDL2 TTF extension (SDL2_ttf-devel-x.y.z-VC.zip) from https://github.com/libsdl-org/SDL_ttf/releases
+ - Download SDL2 Mixer extension (SDL2_mixer-devel.x.y.z-VC.zip) from https://github.com/libsdl-org/SDL_mixer/releases
+ - Make sure to put the "include" folder for each of the four downloaded folders in Additional Include Directories
+ - Make sure to put the "lib\x64" folder for each of the four downloaded folders in Additional Library Directories
+ - Make sure to put SDL2.lib, SDL2main.lib, SDL_image.lib, SDL_ttf.lib, and SDL_mixer.lib in Additional Dependencies
+ - Make sure to set environment variable path to "lib/x64" for each of the four downloaded folders
  - Once environment variables are set, restart and open solution back up
