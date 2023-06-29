@@ -14,5 +14,5 @@ namespace bblocks::sdl::audio
 
 	} // anonymous
 
-
+	
 }
