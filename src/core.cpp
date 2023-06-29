@@ -14,28 +14,22 @@ namespace bblocks::core
 {
     namespace
     {
-        // TODO: Simplify with top_left and bottom_right coordinates with GLM or DXM
         struct rect_info
         {
-            u32     left;
-            u32     top;
-            u32     right;
-            u32     bottom;
+            glm::uvec2  top_left;
+            glm::uvec2  bottom_right;
         };
 
         std::vector<u32>    pieces_{ 0, 1, 2, 3, 4, 5, 6 };
         std::vector<u32>    next_pieces_{ 0, 1, 2, 3, 4, 5, 6 };
         u32                 piece_index_{ 0 };
 
-        // TODO: Simplify coordinate vars with math lib like GLM or DXM
         u32                 current_piece_{ 0 };
         u32                 current_rotation_{ 0 };
-        s32                 current_pos_x_{ 0 };
-        s32                 current_pos_y_{ 0 };
+        glm::ivec2          curr_pos_{ 0, 0 };
         u32                 next_piece_{ 0 };
         u32                 next_rotation_{ 0 };
-        s32                 next_pos_x_{ 0 };
-        s32                 next_pos_y_{ 0 };
+        glm::ivec2          next_pos_{ 0, 0 };
 
         u32                 level_{ 1 };
         u32                 score_{ 0 };
@@ -69,18 +63,18 @@ namespace bblocks::core
                 default: c = magenta; h = magenta; s = magenta; break;
             }
 
-            // Draw highlight color
-            sdl::core::draw_rectangle(info.left, info.top, info.right, info.bottom, h);
-            // Draw shadow color
-            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right, info.bottom, s);
-            // Draw regular color
-            sdl::core::draw_rectangle(info.left + 2, info.top + 2, info.right - 2, info.bottom - 2, c);
+            const glm::uvec2 indent_top_left{ info.top_left.x + 2, info.top_left.y + 2 };
+            const glm::uvec2 indent_bottom_right{ info.bottom_right.x - 2, info.bottom_right.y - 2 };
+
+            sdl::core::draw_rectangle(info.top_left, info.bottom_right, h);
+            sdl::core::draw_rectangle(indent_top_left, info.bottom_right, s);
+            sdl::core::draw_rectangle(indent_top_left, indent_bottom_right, c);
         }
 
         void
         darken_screen(const rect_info& screen)
         {
-            sdl::core::draw_rectangle(screen.left, screen.top, screen.right, screen.bottom, fade);
+            sdl::core::draw_rectangle(screen.top_left, screen.bottom_right, fade);
         }
 
         void
@@ -107,7 +101,10 @@ namespace bblocks::core
         u32
         get_rand(const u32 a, const u32 b)
         { 
-            return rand() % (b - a + 1) + a;
+            static thread_local std::mt19937 generator;
+            std::uniform_int_distribution distribution(a, b);
+            return distribution(generator);
+        	//return rand() % (b - a + 1) + a;
         }
 
 	    void
@@ -123,8 +120,8 @@ namespace bblocks::core
 
             current_piece_ = next_piece_;
             current_rotation_ = next_rotation_;
-            current_pos_x_ = (board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
-            current_pos_y_ = piece::get_y_initial_position(current_piece_, current_rotation_);
+            curr_pos_.x = static_cast<s32>(board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
+            curr_pos_.y = piece::get_y_initial_position(current_piece_, current_rotation_);
 
             if (piece_index_ == 6)
             {
@@ -152,10 +149,10 @@ namespace bblocks::core
                 {
                     if (piece::get_block_type(piece, rotation, static_cast<s32>(j), static_cast<s32>(i)) != 0)
                     {
-                        info.left = pixels_x + i * board::get_block_size();
-                        info.top = pixels_y + j * board::get_block_size();
-                        info.right = (pixels_x + i * board::get_block_size()) + board::get_block_size ()- 1;
-                        info.bottom = (pixels_y + j * board::get_block_size()) + board::get_block_size ()- 1;
+                        info.top_left.x = pixels_x + i * board::get_block_size();
+                        info.top_left.y = pixels_y + j * board::get_block_size();
+                        info.bottom_right.x = (pixels_x + i * board::get_block_size()) + board::get_block_size ()- 1;
+                        info.bottom_right.y = (pixels_y + j * board::get_block_size()) + board::get_block_size ()- 1;
 
                         draw_block(info, piece);
                     }
@@ -175,15 +172,15 @@ namespace bblocks::core
             // Draw the vertical board boundaries
             for (u32 i{ 0 }; i <= board::get_block_size() * board::get_board_height(); i += board::get_block_size())
             {
-                info.left = x1 - board::get_block_size();
-                info.top = y + i;
-                info.right = x1;
-                info.bottom = y + i + board::get_block_size() - 1;
+                info.top_left.x = x1 - board::get_block_size();
+                info.top_left.y = y + i;
+                info.bottom_right.x = x1;
+                info.bottom_right.y = y + i + board::get_block_size() - 1;
     
                 draw_block(info);
     
-                info.left = x2;
-                info.right = x2 + board::get_block_size();
+                info.top_left.x = x2;
+                info.bottom_right.x = x2 + board::get_block_size();
     
                 draw_block(info);
             }
@@ -192,10 +189,10 @@ namespace bblocks::core
             for (u32 i{ 1 }; i <= board::get_board_width(); ++i)
             {
                 const u32 x_offset{ i * board::get_block_size() };
-                info.left = (x1 - board::get_block_size()) + x_offset + 1;
-                info.top = sdl::core::display_height() - board::get_block_size();
-                info.right = x1 + x_offset;
-                info.bottom = sdl::core::display_height() - 1;
+                info.top_left.x = (x1 - board::get_block_size()) + x_offset + 1;
+                info.top_left.y = sdl::core::display_height() - board::get_block_size();
+                info.bottom_right.x = x1 + x_offset;
+                info.bottom_right.y = sdl::core::display_height() - 1;
     
                 draw_block(info);
             }
@@ -207,10 +204,10 @@ namespace bblocks::core
                     // Check if the block is filled, if so, draw it
                     if (!board::is_free_block(i, j))
                     {
-                        info.left = x1 + i * board::get_block_size();
-                        info.top = y + j * board::get_block_size();
-                        info.right = (x1 + i * board::get_block_size()) + board::get_block_size() - 1;
-                        info.bottom = (y + j * board::get_block_size()) + board::get_block_size() - 1;
+                        info.top_left.x = x1 + i * board::get_block_size();
+                        info.top_left.y = y + j * board::get_block_size();
+                        info.bottom_right.x = (x1 + i * board::get_block_size()) + board::get_block_size() - 1;
+                        info.bottom_right.y = (y + j * board::get_block_size()) + board::get_block_size() - 1;
     
                         draw_block(info, board::get_piece_type(i, j));
                     }
@@ -224,12 +221,12 @@ namespace bblocks::core
             sdl::core::clear_screen();
 
             draw_board();
-            draw_piece(current_pos_x_, current_pos_y_, current_piece_, current_rotation_);
-            draw_piece(next_pos_x_, next_pos_y_, next_piece_, next_rotation_);
+            draw_piece(curr_pos_.x, curr_pos_.y, current_piece_, current_rotation_);
+            draw_piece(next_pos_.x, next_pos_.y, next_piece_, next_rotation_);
 
             if (paused_)
             {
-    	        const rect_info info{ 0, 0, sdl::core::display_width(), sdl::core::display_height() };
+	            const rect_info info{ { 0, 0 }, { sdl::core::display_width(), sdl::core::display_height() } };
 
                 draw_pause_overlay(info);
             }
@@ -244,7 +241,7 @@ namespace bblocks::core
             {
                 draw_scene();
 
-                rect_info info{ 0, 0, sdl::core::display_width(), sdl::core::display_height() };
+                rect_info info{ { 0, 0 }, { sdl::core::display_width(), sdl::core::display_height() } };
                 draw_game_over_overlay(info);
 
                 sdl::core::render();
@@ -275,12 +272,12 @@ namespace bblocks::core
 
                 if (new_game)
                 {
-                    current_pos_x_ = 0;
-                    current_pos_y_ = 0;
+                    curr_pos_.x = 0;
+                    curr_pos_.y = 0;
                     current_piece_ = 0;
                     current_rotation_ = 0;
-                    next_pos_x_ = 0;
-                    next_pos_y_ = 0;
+                    next_pos_.x = 0;
+                    next_pos_.y = 0;
                     next_piece_ = 0;
                     next_rotation_ = 0;
                     level_ = 1;
@@ -314,13 +311,13 @@ namespace bblocks::core
         shuffle_pieces_bag(pieces_);
         current_piece_ = pieces_.at(0);
         current_rotation_ = get_rand(0, 3);
-        current_pos_x_ = static_cast<s32>(board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
-        current_pos_y_ = piece::get_y_initial_position(current_piece_, current_rotation_);
+        curr_pos_.x = static_cast<s32>(board::get_board_width() / 2) + piece::get_x_initial_position(current_piece_, current_rotation_);
+        curr_pos_.y = piece::get_y_initial_position(current_piece_, current_rotation_);
 
         next_piece_ = pieces_.at(1);
         next_rotation_ = get_rand(0, 3);
-        next_pos_x_ = static_cast<s32>(board::get_board_width()) + 3;
-        next_pos_y_ = 5;
+        next_pos_.x = static_cast<s32>(board::get_board_width()) + 3;
+        next_pos_.y = 5;
 
         running_ = true;
         
@@ -343,23 +340,23 @@ namespace bblocks::core
     		break;
 
     	case (SDLK_RIGHT):
-    		if (board::is_possible_movement(current_pos_x_ + 1, current_pos_y_, current_piece_, current_rotation_))
-    			++current_pos_x_;
+    		if (board::is_possible_movement(curr_pos_.x + 1, curr_pos_.y, current_piece_, current_rotation_))
+    			++curr_pos_.x;
     		break;
 
     	case (SDLK_LEFT):
-    		if (board::is_possible_movement(current_pos_x_ - 1, current_pos_y_, current_piece_, current_rotation_))
-    			--current_pos_x_;
+    		if (board::is_possible_movement(curr_pos_.x - 1, curr_pos_.y, current_piece_, current_rotation_))
+    			--curr_pos_.x;
     		break;
 
     	// Immediately move piece as far down as it goes and freeze it
     	case (SDLK_z):
     	case (SDLK_SPACE):
     		// Check collision from up to down
-    		while (board::is_possible_movement(current_pos_x_, current_pos_y_, current_piece_, current_rotation_))
-    			++current_pos_y_;
+    		while (board::is_possible_movement(curr_pos_.x, curr_pos_.y, current_piece_, current_rotation_))
+    			++curr_pos_.y;
 
-            board::store_piece(current_pos_x_, current_pos_y_ - 1, current_piece_, current_rotation_);
+            board::store_piece(curr_pos_.x, curr_pos_.y - 1, current_piece_, current_rotation_);
             board::delete_possible_lines(dt_);
 
     		if (board::is_game_over())
@@ -373,14 +370,14 @@ namespace bblocks::core
 
     	// Rotate piece
     	case (SDLK_UP):
-    		if (board::is_possible_movement(current_pos_x_, current_pos_y_, current_piece_, (current_rotation_ + 1) % 4))
+    		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y, current_piece_, (current_rotation_ + 1) % 4))
     			current_rotation_ = (current_rotation_ + 1) % 4;
     		break;
 
     	// Speed up fall
     	case (SDLK_DOWN):
-    		if (board::is_possible_movement(current_pos_x_, current_pos_y_ + 1, current_piece_, current_rotation_))
-    			++current_pos_y_;
+    		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y + 1, current_piece_, current_rotation_))
+    			++curr_pos_.y;
     		break;
 
     	case (SDLK_p):
@@ -415,13 +412,13 @@ namespace bblocks::core
             }
         }
 
-        if ((SDL_GetTicks() - time1_) > static_cast<u32>(wait_time_) && !paused_)
+        if (SDL_GetTicks() - time1_ > wait_time_ && !paused_)
         {
-            if (board::is_possible_movement(current_pos_x_, current_pos_y_ + 1, current_piece_, current_rotation_))
-                ++current_pos_y_;
+            if (board::is_possible_movement(curr_pos_.x, curr_pos_.y + 1, current_piece_, current_rotation_))
+                ++curr_pos_.y;
             else
             {
-                board::store_piece(current_pos_x_, current_pos_y_, current_piece_, current_rotation_);
+                board::store_piece(curr_pos_.x, curr_pos_.y, current_piece_, current_rotation_);
 
                 if (board::is_game_over())
                 {

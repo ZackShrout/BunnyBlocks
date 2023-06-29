@@ -198,13 +198,13 @@ namespace bblocks::sdl::core
     }
 
     void
-    draw_rectangle(const u32 x1, const u32 y1, const u32 x2, const u32 y2, const color c, const bool filled/* = true*/)
+    draw_rectangle(const glm::uvec2& top_left, const glm::uvec2& bottom_right, const color c, const bool filled/* = true*/)
     {
         SDL_Rect rect;
-        rect.x = static_cast<int>(x1);
-        rect.y = static_cast<int>(y1);
-        rect.w = static_cast<int>(x2 - x1);
-        rect.h = static_cast<int>(y2 - y1);
+        rect.x = static_cast<int>(top_left.x);
+        rect.y = static_cast<int>(top_left.y);
+        rect.w = static_cast<int>(bottom_right.x - top_left.x);
+        rect.h = static_cast<int>(bottom_right.y - top_left.y);
 
         const u8 r = (colors_[c] >> 24) & 0xff;
         const u8 g = (colors_[c] >> 16) & 0xff;
@@ -346,7 +346,8 @@ namespace bblocks::sdl::core
 	    const u32 x{ display_width_ / 2 - paused_text_.width() / 2 };
 	    const u32 y{ display_height_ / 2 - paused_text_.height() / 2 };
 
-        draw_rectangle(x - 30, y - 20, x + paused_text_.width() + 30, y + paused_text_.height() + 20, white, false);
+	    draw_rectangle({ x - 30, y - 20 }, { x + paused_text_.width() + 30, y + paused_text_.height() + 20 }, white,
+	                   false);
         paused_text_.render(x, y);
     }
 
@@ -362,11 +363,11 @@ namespace bblocks::sdl::core
 	    const u32 exit_y{ new_game_y + new_game_text_.height() + 10 };
 	    const u32 arrow_offset_y{ ((new_game_text_.height() - select_arrow_.height()) / 2) };
 
-	    draw_rectangle(x - 30, game_over_y - 20,
-	                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+	    draw_rectangle({ x - 30, game_over_y - 20 },
+	                   { x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20 },
 	                   black);
-	    draw_rectangle(x - 30, game_over_y - 20,
-	                   x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20,
+	    draw_rectangle({ x - 30, game_over_y - 20 },
+	                   { x + game_over_text_.width() + 30, exit_y + exit_text_.height() + 20 },
 	                   white, false);
 	    game_over_text_.render(x, game_over_y);
 
