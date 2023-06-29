@@ -3,6 +3,7 @@
         "*.tcc": "cpp",
         "random": "cpp",
         "cstring": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "ostream": "cpp"
     }
 }

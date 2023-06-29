@@ -5,6 +5,7 @@
 #include <string>
 
 #include "sdl_texture.h"
+#include "sdl_audio.h"
 
 namespace bblocks::sdl::core
 {
@@ -116,12 +117,6 @@ namespace bblocks::sdl::core
             return false;
         }
 
-        if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
-        {
-            std::cerr << "SDL_mixer could not initialize! SDL_mixer Error... " << Mix_GetError() << std::endl;
-            return false;
-        }
-
         if(TTF_Init() == -1)
         {
             std::cerr << "SDL_ttf could not initialize! SDL_ttf Error... " << TTF_GetError() << std::endl;
@@ -175,25 +170,36 @@ namespace bblocks::sdl::core
             return false;
         }
 
+        if (!audio::init()) return false;
+
         return true;
     }
 
     void
     shutdown()
     {
+        audio::shutdown();
+        
+        select_arrow_.free();
         level_text_.free();
 	    score_text_.free();
+        paused_text_.free();
+        game_over_text_.free();
+        new_game_text_.free();
+        exit_text_.free();
 
 	    TTF_CloseFont(hud_font_);
-	    hud_font_ = nullptr;
+        TTF_CloseFont(heading_font_);
+        hud_font_ = nullptr;
+	    heading_font_ = nullptr;
 
 	    SDL_DestroyRenderer(renderer_);
 	    SDL_DestroyWindow(window_);
 	    window_ = nullptr;
 	    renderer_ = nullptr;
 
-	    TTF_Quit();
 	    IMG_Quit();
+	    TTF_Quit();
 	    SDL_Quit();
     }
 

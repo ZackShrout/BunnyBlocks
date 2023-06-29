@@ -8,6 +8,7 @@
 #include "board.h"
 #include "common.h"
 #include "pieces.h"
+#include "SDL/sdl_audio.h"
 #include "SDL/sdl_core.h"
 
 namespace bblocks::core
@@ -342,11 +343,13 @@ namespace bblocks::core
     	case (SDLK_RIGHT):
     		if (board::is_possible_movement(curr_pos_.x + 1, curr_pos_.y, current_piece_, current_rotation_))
     			++curr_pos_.x;
+            sdl::audio::play_sfx(0);
     		break;
 
     	case (SDLK_LEFT):
     		if (board::is_possible_movement(curr_pos_.x - 1, curr_pos_.y, current_piece_, current_rotation_))
     			--curr_pos_.x;
+            sdl::audio::play_sfx(0);
     		break;
 
     	// Immediately move piece as far down as it goes and freeze it
