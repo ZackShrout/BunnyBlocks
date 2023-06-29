@@ -256,29 +256,29 @@ namespace bblocks::sdl::core
 	    		case SDL_KEYDOWN:
 	    			return event.key.keysym.sym;
 	    		case SDL_QUIT:
-	    			exit(3);
+	    			return SDLK_ESCAPE;
                 default: break;
             }
 	    }
 	    return -1;
     }
 
-    s32
-    get_key()
-    {
-        SDL_Event event;
+    // s32
+    // get_key()
+    // {
+    //     SDL_Event event;
 
-	    while (true)
-	    {
-	      SDL_WaitEvent(&event);
-	      if (event.type == SDL_KEYDOWN)
-	    	  break;
-          if (event.type == SDL_QUIT)
-	    	  exit(3);
-	    }
+	//     while (true)
+	//     {
+	//       SDL_WaitEvent(&event);
+	//       if (event.type == SDL_KEYDOWN)
+	//     	  break;
+    //       if (event.type == SDL_QUIT)
+	//     	  return SDLK_ESCAPE;
+	//     }
 
-        return event.key.keysym.sym;
-    }
+    //     return event.key.keysym.sym;
+    // }
 
     u8
     is_key_down(const u32 key)
