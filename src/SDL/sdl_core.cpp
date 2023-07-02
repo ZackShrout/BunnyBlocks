@@ -10,63 +10,65 @@ namespace bblocks::sdl::core
 {
     namespace
     {
-        constexpr u32   desired_screen_w = 580;
-        constexpr u32   desired_screen_h = 420;
+        constexpr s32       joystick_dead_zone{ 8000 };
+    	constexpr u32       desired_screen_w = 580;
+        constexpr u32       desired_screen_h = 420;
         
-        SDL_Window*     window_{};
-        SDL_Renderer*   renderer_{};
+        SDL_Window*         window_{};
+        SDL_Renderer*       renderer_{};
+        SDL_GameController* controller_{};
 
-        u32             display_width_{ 0 };
-        u32             display_height_{ 0 };
-        u32             max_display_width_{ 0 };
-        u32             max_display_height_{ 0 };
+        u32                 display_width_{ 0 };
+        u32                 display_height_{ 0 };
+        u32                 max_display_width_{ 0 };
+        u32                 max_display_height_{ 0 };
 
-        s32             current_points_{ -1 };
-        s32             current_level_{ -1 };
+        s32                 current_points_{ -1 };
+        s32                 current_level_{ -1 };
 
-        TTF_Font*       hud_font_{ nullptr };
-        TTF_Font*       heading_font_{ nullptr };
-        sdl_texture     level_text_;
-        sdl_texture     score_text_;
-        sdl_texture     paused_text_;
-        sdl_texture     game_over_text_;
-        sdl_texture     new_game_text_;
-        sdl_texture     exit_text_;
-        sdl_texture     select_arrow_;
+        TTF_Font*           hud_font_{ nullptr };
+        TTF_Font*           heading_font_{ nullptr };
+        sdl_texture         level_text_;
+        sdl_texture         score_text_;
+        sdl_texture         paused_text_;
+        sdl_texture         game_over_text_;
+        sdl_texture         new_game_text_;
+        sdl_texture         exit_text_;
+        sdl_texture         select_arrow_;
 
-        u32             colors_[color::count]
-                        {
-                            0x0000'00ff,    // black
-                            0xff00'00ff,    // red
-                            0x8000'00ff,    // dark red
-                            0xff7f'7fff,    // light red
-                            0x00ff'00ff,    // green
-                            0x0230'20ff,    // dark green
-                            0x98fb'98ff,    // light green
-                            0x0000'ffff,    // blue
-                            0x1919'70ff,    // dark blue
-                            0x7393'b3ff,    // light blue
-                            0xda70'd6ff,    // purple
-                            0x7f00'ffff,    // dark purple
-                            0xd8bf'd8ff,    // light purple
-                            0xff75'18ff,    // orange
-                            0xc040'00ff,    // dark orange
-                            0xffd5'80ff,    // light orange
-                            0xfafa'33ff,    // yellow
-                            0xffc0'00ff,    // dark yellow
-                            0xffff'8fff,    // light yellow
-                            0xf883'79ff,    // pink
-                            0xaa33'6aff,    // dark pink
-                            0xfff5'6aff,    // light pink
-                            0x00ff'ffff,    // cyan
-                            0xff00'ffff,    // magenta
-                            0x2020'20ff,    // light grey
-                            0x5900'00ff,    // brick
-                            0x3300'00ff,    // dark brick
-                            0x8c19'19ff,    // light brick
-                            0xffff'ffff,    // white
-                            0x0000'007f     // fade
-                        };
+        u32                 colors_[count]
+                            {
+                                0x0000'00ff,    // black
+                                0xff00'00ff,    // red
+                                0x8000'00ff,    // dark red
+                                0xff7f'7fff,    // light red
+                                0x00ff'00ff,    // green
+                                0x0230'20ff,    // dark green
+                                0x98fb'98ff,    // light green
+                                0x0000'ffff,    // blue
+                                0x1919'70ff,    // dark blue
+                                0x7393'b3ff,    // light blue
+                                0xda70'd6ff,    // purple
+                                0x7f00'ffff,    // dark purple
+                                0xd8bf'd8ff,    // light purple
+                                0xff75'18ff,    // orange
+                                0xc040'00ff,    // dark orange
+                                0xffd5'80ff,    // light orange
+                                0xfafa'33ff,    // yellow
+                                0xffc0'00ff,    // dark yellow
+                                0xffff'8fff,    // light yellow
+                                0xf883'79ff,    // pink
+                                0xaa33'6aff,    // dark pink
+                                0xfff5'6aff,    // light pink
+                                0x00ff'ffff,    // cyan
+                                0xff00'ffff,    // magenta
+                                0x2020'20ff,    // light grey
+                                0x5900'00ff,    // brick
+                                0x3300'00ff,    // dark brick
+                                0x8c19'19ff,    // light brick
+                                0xffff'ffff,    // white
+                                0x0000'007f     // fade
+                            };
     } // anonymous
 
     bool
@@ -106,6 +108,15 @@ namespace bblocks::sdl::core
         {
             std::cerr << "Error creating SDL renderer... " << SDL_GetError() << std::endl;
             return false;
+        }
+
+        if (SDL_NumJoysticks() > 0)
+        {
+            controller_ = SDL_GameControllerOpen(0);
+            // NOTE: Even if the game controller can't be opened, we still allow for keyboard input,
+            //       so this is not a fatal error.
+            if (!controller_)
+                std::cerr << "Error opening game controller... " << SDL_GetError() << std::endl;
         }
 
         SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
@@ -192,8 +203,10 @@ namespace bblocks::sdl::core
         hud_font_ = nullptr;
 	    heading_font_ = nullptr;
 
+        SDL_GameControllerClose(controller_);
 	    SDL_DestroyRenderer(renderer_);
 	    SDL_DestroyWindow(window_);
+        controller_ = nullptr;
 	    window_ = nullptr;
 	    renderer_ = nullptr;
 
@@ -248,29 +261,62 @@ namespace bblocks::sdl::core
     {
         SDL_Event event;
 
-	    while (SDL_PollEvent(&event)) 
-	    {
-	    	switch (event.type)
-            {
-	    		case SDL_KEYDOWN:
-	    			return event.key.keysym.sym;
-	    		case SDL_QUIT:
-	    			return SDLK_ESCAPE;
-                default: break;
-            }
-	    }
+        while (SDL_PollEvent(&event))
+        {
+        	switch (event.type)
+	        {
+	        case SDL_KEYDOWN:
+		        return event.key.keysym.sym;
+	        case SDL_QUIT:
+		        return SDLK_ESCAPE;
+	        case SDL_CONTROLLERBUTTONDOWN:
+                if (event.cbutton.which == 0) // Is this coming from controller_?
+                {
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT)
+                        return key_left;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
+                        return key_right;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP)
+                        return key_up;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN)
+                        return key_down;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_START)
+                        return key_enter;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_B)
+                        return key_space;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_A)
+                        return key_down;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_X)
+                        return key_up;
+                    if (event.cbutton.button == SDL_CONTROLLER_BUTTON_Y)
+                        std::cerr << "Stop pressing me, you are wasting your time!" << std::endl;
+                }
+                break;
+
+	        case SDL_JOYAXISMOTION:
+		        if (event.jaxis.which == 0) // Do we have motion on game_controller_?
+		        {
+			        if (event.jaxis.axis == 0) // X axis motion?
+			        {
+				        if (event.jaxis.value < -joystick_dead_zone)
+					        return key_left;
+				        if (event.jaxis.value > joystick_dead_zone)
+					        return key_right;
+			        }
+			        else if (event.jaxis.axis == 1) // Y axis motion?
+			        {
+				        if (event.jaxis.value < -joystick_dead_zone)
+					        return key_up;
+				        if (event.jaxis.value > joystick_dead_zone)
+					        return key_down;
+			        }
+		        }
+		        break;
+            default: break;
+	        }
+        }
+
 	    return -1;
-    }
-
-    u8
-    is_key_down(const u32 key)
-    {
-        s32 num_keys;
-
-	    SDL_PumpEvents();
-	    const u8* key_table{ SDL_GetKeyboardState(&num_keys) };
-    
-        return key_table[key];
     }
 
     void

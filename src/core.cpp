@@ -15,7 +15,7 @@ namespace bblocks::core
 {
     namespace
     {
-        struct rect_info
+    	struct rect_info
         {
             glm::uvec2  top_left;
             glm::uvec2  bottom_right;
@@ -102,10 +102,9 @@ namespace bblocks::core
         u32
         get_rand(const u32 a, const u32 b)
         { 
-            static thread_local std::mt19937 generator;
+            static thread_local std::mt19937 generator;  // NOLINT(cert-msc51-cpp) - this being predictable isn't a big deal here
             std::uniform_int_distribution distribution(a, b);
             return distribution(generator);
-        	//return rand() % (b - a + 1) + a;
         }
 
 	    void
@@ -349,13 +348,11 @@ namespace bblocks::core
     	case (sdl::core::key_right):
     		if (board::is_possible_movement(curr_pos_.x + 1, curr_pos_.y, current_piece_, current_rotation_))
     			++curr_pos_.x;
-            sdl::audio::play_sfx(6);
     		break;
 
     	case (sdl::core::key_left):
     		if (board::is_possible_movement(curr_pos_.x - 1, curr_pos_.y, current_piece_, current_rotation_))
     			--curr_pos_.x;
-            sdl::audio::play_sfx(6);
     		break;
 
     	// Immediately move piece as far down as it goes and freeze it
@@ -392,7 +389,6 @@ namespace bblocks::core
     	case (sdl::core::key_down):
     		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y + 1, current_piece_, current_rotation_))
     			++curr_pos_.y;
-            sdl::audio::play_sfx(6);
     		break;
 
     	case (sdl::core::key_p):
