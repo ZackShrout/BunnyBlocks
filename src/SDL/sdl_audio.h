@@ -2,6 +2,8 @@
 
 #include "sdl_common.h"
 
+using u32 = uint32_t;
+
 namespace bblocks::sdl::audio
 {
 	bool init();

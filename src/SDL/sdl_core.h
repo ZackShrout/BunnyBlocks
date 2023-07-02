@@ -26,7 +26,6 @@ namespace bblocks::sdl::core
     [[nodiscard]] u32 display_width();
     [[nodiscard]] u32 display_height();
     s32 poll_key();
-    // s32 get_key();
     u8 is_key_down(u32 key);
     void render();
     void draw_hud(u32 points, u32 level);

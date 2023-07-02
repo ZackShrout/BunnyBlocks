@@ -16,6 +16,7 @@ namespace bblocks::sdl::audio
 		Mix_Chunk*					thunk_sfx_{ nullptr };
 		Mix_Chunk*					level_change_sfx_{ nullptr };
 		Mix_Chunk*					clear_line_sfx_{ nullptr };
+		Mix_Chunk*					move_sfx_{ nullptr };
 
 		std::vector<Mix_Music*>		music_;
 		std::vector<Mix_Chunk*>		sfx_;
@@ -34,55 +35,61 @@ namespace bblocks::sdl::audio
     	if(!game_music_)
 			std::cerr << "Failed to load game_music_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			music_.emplace_back();
+			music_.emplace_back(game_music_);
 
 		game_over_music_ = Mix_LoadMUS("");
     	if(!game_over_music_)
 			std::cerr << "Failed to load game_over_music_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			music_.emplace_back();
+			music_.emplace_back(game_over_music_);
 		
 		title_screen_music_ = Mix_LoadMUS("");
     	if(!title_screen_music_)
 			std::cerr << "Failed to load title_screen_music_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			music_.emplace_back();
+			music_.emplace_back(title_screen_music_);
 
-    	rotate_sfx_ = Mix_LoadWAV("");
+    	rotate_sfx_ = Mix_LoadWAV("sfx/rotate.wav");
     	if(!rotate_sfx_)
     	    std::cerr << "Failed to load rotate_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(rotate_sfx_);
 		
-		died_sfx_ = Mix_LoadWAV("");
+		died_sfx_ = Mix_LoadWAV("sfx/game_over.wav");
     	if(!died_sfx_)
     	    std::cerr << "Failed to load died_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(died_sfx_);
 
-		select_sfx_ = Mix_LoadWAV( "" );
+		select_sfx_ = Mix_LoadWAV("sfx/select.wav");
     	if(!select_sfx_)
     	    std::cerr << "Failed to load select_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(select_sfx_);
 
-		thunk_sfx_ = Mix_LoadWAV( "" );
+		thunk_sfx_ = Mix_LoadWAV("sfx/thunk.wav");
     	if(!thunk_sfx_)
     	    std::cerr << "Failed to load thunk_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(thunk_sfx_);
 
-		level_change_sfx_ = Mix_LoadWAV( "" );
+		level_change_sfx_ = Mix_LoadWAV("sfx/new_level.wav");
     	if(!level_change_sfx_)
     	    std::cerr << "Failed to load level_change_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(level_change_sfx_);
 
-		clear_line_sfx_ = Mix_LoadWAV( "" );
+		clear_line_sfx_ = Mix_LoadWAV("sfx/lines_clear.wav");
     	if(!clear_line_sfx_)
     	    std::cerr << "Failed to load clear_line_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
 		else
-			sfx_.emplace_back();
+			sfx_.emplace_back(clear_line_sfx_);
+
+		move_sfx_ = Mix_LoadWAV("sfx/move.wav");
+		if (!move_sfx_)
+			std::cerr << "Failed to load move_sfx_! SDL_mixer Error... " << Mix_GetError() << std::endl;
+		else
+			sfx_.emplace_back(move_sfx_);
 		
 		return true;
 	}
@@ -99,6 +106,7 @@ namespace bblocks::sdl::audio
 		Mix_FreeChunk(thunk_sfx_);
 		Mix_FreeChunk(level_change_sfx_);
 		Mix_FreeChunk(clear_line_sfx_);
+		Mix_FreeChunk(move_sfx_);
 
 		game_music_ = nullptr;
 		game_over_music_ = nullptr;
@@ -109,6 +117,7 @@ namespace bblocks::sdl::audio
 		thunk_sfx_ = nullptr;
 		level_change_sfx_ = nullptr;
 		clear_line_sfx_ = nullptr;
+		move_sfx_ = nullptr;
 
 		sfx_.clear();
 		music_.clear();
@@ -117,14 +126,14 @@ namespace bblocks::sdl::audio
 	}
 
 	void
-	play_sfx(u32 index)
+	play_sfx(const u32 index)
 	{
 		if (sfx_.size() > index)
 			Mix_PlayChannel(-1, sfx_.at(index), 0);
 	}
 
 	void
-	play_music(u32 index)
+	play_music(const u32 index)
 	{
 		if (music_.size() <= index) return;
 		

@@ -1,11 +1,10 @@
 #include "sdl_core.h"
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
 
-#include "sdl_texture.h"
 #include "sdl_audio.h"
+#include "sdl_texture.h"
 
 namespace bblocks::sdl::core
 {
@@ -262,23 +261,6 @@ namespace bblocks::sdl::core
 	    }
 	    return -1;
     }
-
-    // s32
-    // get_key()
-    // {
-    //     SDL_Event event;
-
-	//     while (true)
-	//     {
-	//       SDL_WaitEvent(&event);
-	//       if (event.type == SDL_KEYDOWN)
-	//     	  break;
-    //       if (event.type == SDL_QUIT)
-	//     	  return SDLK_ESCAPE;
-	//     }
-
-    //     return event.key.keysym.sym;
-    // }
 
     u8
     is_key_down(const u32 key)

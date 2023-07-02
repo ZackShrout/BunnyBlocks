@@ -4,7 +4,8 @@
 #include <vector>
 
 #include "pieces.h"
-
+#include "SDL/sdl_audio.h"
+	
 namespace bblocks::board
 {
     namespace
@@ -151,6 +152,7 @@ namespace bblocks::board
 		    lines_to_delete_.clear();
 		    lines_for_deletion_ = false;
 		    delay = 0.f;
+			sdl::audio::play_sfx(5);
 	    }
     }
     

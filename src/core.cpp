@@ -237,6 +237,7 @@ namespace bblocks::core
         draw_game_over()
         {
             bool new_game{ false };
+            sdl::audio::play_sfx(1);
 
             while (running_)
             {
@@ -252,20 +253,24 @@ namespace bblocks::core
                 case (sdl::core::key_x):
                 case (sdl::core::key_escape):
     	            running_ = false;
+                    sdl::audio::play_sfx(2);
     	            break;
 
                 case (sdl::core::key_n):
     	            new_game = true;
+                    sdl::audio::play_sfx(2);
     	            break;
 
                 case (sdl::core::key_up):
                 case (sdl::core::key_down):
                     menu_selection_ = menu_selection_ == 0 ? 1 : 0;
+                    sdl::audio::play_sfx(6);
                     break;
 
                 case (sdl::core::key_space):
                 case (sdl::core::key_enter):
                     menu_selection_ == 0 ? new_game = true : running_ = false;
+                    sdl::audio::play_sfx(2);
                     break; 
 
                 default: break;
@@ -292,6 +297,7 @@ namespace bblocks::core
                     dt_ = 0.f;
 
                     init();
+                    sdl::audio::play_sfx(4);
 
                     return;
                 }
@@ -343,13 +349,13 @@ namespace bblocks::core
     	case (sdl::core::key_right):
     		if (board::is_possible_movement(curr_pos_.x + 1, curr_pos_.y, current_piece_, current_rotation_))
     			++curr_pos_.x;
-            sdl::audio::play_sfx(0);
+            sdl::audio::play_sfx(6);
     		break;
 
     	case (sdl::core::key_left):
     		if (board::is_possible_movement(curr_pos_.x - 1, curr_pos_.y, current_piece_, current_rotation_))
     			--curr_pos_.x;
-            sdl::audio::play_sfx(0);
+            sdl::audio::play_sfx(6);
     		break;
 
     	// Immediately move piece as far down as it goes and freeze it
@@ -368,24 +374,31 @@ namespace bblocks::core
     		}
 
     		new_piece();
+            sdl::audio::play_sfx(3);
 
     		break;
 
     	// Rotate piece
     	case (sdl::core::key_up):
     		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y, current_piece_, (current_rotation_ + 1) % 4))
-    			current_rotation_ = (current_rotation_ + 1) % 4;
+    		{
+                current_rotation_ = (current_rotation_ + 1) % 4;
+                sdl::audio::play_sfx(0);
+    		}
+
     		break;
 
     	// Speed up fall
     	case (sdl::core::key_down):
     		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y + 1, current_piece_, current_rotation_))
     			++curr_pos_.y;
+            sdl::audio::play_sfx(6);
     		break;
 
     	case (sdl::core::key_p):
         case (sdl::core::key_enter):
     		paused_ = !paused_;
+            sdl::audio::play_sfx(2);
     		break;
 
     	default:
@@ -412,6 +425,7 @@ namespace bblocks::core
             {
                 ++level_;
                 wait_time_ -= static_cast<u32>(static_cast<f32>(wait_time_) / 4.f);
+                sdl::audio::play_sfx(4);
             }
         }
 
