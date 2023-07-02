@@ -79,4 +79,27 @@
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="C:\Users\zshro\Desktop\game_over.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\lines_clear.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\thunk.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\move.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\rotate.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\new_level.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+    <Media Include="C:\Users\zshro\Desktop\select.wav">
+      <Filter>Resource Files</Filter>
+    </Media>
+  </ItemGroup>
 </Project>
