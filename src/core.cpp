@@ -8,6 +8,7 @@
 #include "board.h"
 #include "common.h"
 #include "pieces.h"
+#include "SDL/sdl_audio.h"
 #include "SDL/sdl_core.h"
 
 namespace bblocks::core
@@ -248,22 +249,22 @@ namespace bblocks::core
 
                 switch (sdl::core::poll_key())
                 {
-                case (SDLK_x):
-                case (SDLK_ESCAPE):
+                case (sdl::core::key_x):
+                case (sdl::core::key_escape):
     	            running_ = false;
     	            break;
 
-                case (SDLK_n):
+                case (sdl::core::key_n):
     	            new_game = true;
     	            break;
 
-                case (SDLK_UP):
-                case (SDLK_DOWN):
+                case (sdl::core::key_up):
+                case (sdl::core::key_down):
                     menu_selection_ = menu_selection_ == 0 ? 1 : 0;
                     break;
 
-                case (SDLK_SPACE):
-                case (SDLK_RETURN):
+                case (sdl::core::key_space):
+                case (sdl::core::key_enter):
                     menu_selection_ == 0 ? new_game = true : running_ = false;
                     break; 
 
@@ -332,26 +333,28 @@ namespace bblocks::core
 
     void
     process_input()
-    {
+    {   
         switch (sdl::core::poll_key())
     	{
-    	case (SDLK_ESCAPE):
+    	case (sdl::core::key_escape):
             running_ = false;
     		break;
 
-    	case (SDLK_RIGHT):
+    	case (sdl::core::key_right):
     		if (board::is_possible_movement(curr_pos_.x + 1, curr_pos_.y, current_piece_, current_rotation_))
     			++curr_pos_.x;
+            sdl::audio::play_sfx(0);
     		break;
 
-    	case (SDLK_LEFT):
+    	case (sdl::core::key_left):
     		if (board::is_possible_movement(curr_pos_.x - 1, curr_pos_.y, current_piece_, current_rotation_))
     			--curr_pos_.x;
+            sdl::audio::play_sfx(0);
     		break;
 
     	// Immediately move piece as far down as it goes and freeze it
-    	case (SDLK_z):
-    	case (SDLK_SPACE):
+    	case (sdl::core::key_z):
+    	case (sdl::core::key_space):
     		// Check collision from up to down
     		while (board::is_possible_movement(curr_pos_.x, curr_pos_.y, current_piece_, current_rotation_))
     			++curr_pos_.y;
@@ -369,19 +372,19 @@ namespace bblocks::core
     		break;
 
     	// Rotate piece
-    	case (SDLK_UP):
+    	case (sdl::core::key_up):
     		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y, current_piece_, (current_rotation_ + 1) % 4))
     			current_rotation_ = (current_rotation_ + 1) % 4;
     		break;
 
     	// Speed up fall
-    	case (SDLK_DOWN):
+    	case (sdl::core::key_down):
     		if (board::is_possible_movement(curr_pos_.x, curr_pos_.y + 1, current_piece_, current_rotation_))
     			++curr_pos_.y;
     		break;
 
-    	case (SDLK_p):
-        case (SDLK_RETURN):
+    	case (sdl::core::key_p):
+        case (sdl::core::key_enter):
     		paused_ = !paused_;
     		break;
 
